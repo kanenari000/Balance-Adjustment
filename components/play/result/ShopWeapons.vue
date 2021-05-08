@@ -11,8 +11,10 @@
                         <v-list-item-title>
                             Rank{{index}} : {{item}}
                         </v-list-item-title>
-                        <v-col><v-btn fab small><v-icon>mdi-minus</v-icon></v-btn></v-col>
-                        <v-col><v-btn fab small><v-icon>mdi-plus</v-icon></v-btn></v-col>
+                        <v-row>
+                            <v-col><v-btn fab small><v-icon>mdi-minus</v-icon></v-btn></v-col>
+                            <v-col><v-btn fab small><v-icon>mdi-plus</v-icon></v-btn></v-col>
+                        </v-row>
                     </v-list-item-content>
                 </v-list-item>
                 <v-divider

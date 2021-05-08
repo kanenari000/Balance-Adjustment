@@ -13,6 +13,7 @@
             <v-tab> 店強化 </v-tab>
             <v-tab> マス目サマリ </v-tab>
             <v-tab> 一品物製造状態 </v-tab>
+            <v-tab> 大会予約 </v-tab>
         </v-tabs>
         <v-tabs-items v-model="resultTab">
             <v-tab-item>
@@ -65,6 +66,9 @@
                         />
                     </v-col>
                 </v-row>
+            </v-tab-item>
+            <v-tab-item>
+                大会予約できるようにしたい
             </v-tab-item>
         </v-tabs-items>
     </v-col>
