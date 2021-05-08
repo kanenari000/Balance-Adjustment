@@ -37,7 +37,7 @@
     </v-row>
 </template>
 <script>
-import {Status} from '~/modules/status.js';
+import {Status} from '~/modules/config/common/status.js';
 export default {
 
     components: {

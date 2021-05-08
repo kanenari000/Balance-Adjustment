@@ -1,15 +1,26 @@
 <template>
   <v-row>
-    <v-col cols="1">
-      【{{weaponName}}】
-      <v-btn
-        color="primary"
-        elevation="2"
-        fab
-        v-on:click="playDice"
-      >
-        <v-icon size="40">mdi-dice-multiple</v-icon>
-      </v-btn>  
+    <v-col cols="2">
+      <v-row>
+        <v-col cols="8">
+          【{{weaponName}}】
+          <v-select 
+            v-model="selectRank"
+            :items="weaponRank" 
+            solo 
+            label="Rank"
+            background-color="black"
+          />
+        </v-col>
+        <v-col cols="4">
+          <v-btn color="indigo" v-on:click="playDice">
+            量産
+          </v-btn>
+          <v-btn color="teal" v-on:click="playDice">
+            一品
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-col>
     <v-col cols="10">
       <v-sheet
@@ -21,28 +32,30 @@
           center-active
           show-arrows
         >
-          <v-slide-item
+          <template
             v-for="(targetMap, index) in mapList"
-            :key="index"
-            :v-slot="targetMap.isActive"
           >
-            <v-card
-              :color="targetMap.eventType"
-              class="ma-4"
-              height="50"
-              width="50"
+            <v-slide-item
+              :key="index"
             >
-              × {{targetMap.rate}}<br>
-              <v-scale-transition>
-                <v-icon
-                  v-if="targetMap.isActive"
-                  color="black"
-                  size="20"
-                  v-text="'mdi-map-marker'"
-                ></v-icon>
-              </v-scale-transition>
-            </v-card>
-          </v-slide-item>
+              <v-card
+                :color="targetMap.eventType"
+                class="ma-4"
+                height="50"
+                width="50"
+              >
+                × {{targetMap.rate}}<br>
+                <v-scale-transition>
+                  <v-icon
+                    v-if="targetMap.isActive"
+                    color="black"
+                    size="20"
+                    v-text="'mdi-map-marker'"
+                  ></v-icon>
+                </v-scale-transition>
+              </v-card>
+            </v-slide-item>
+          </template>
         </v-slide-group>
       </v-sheet>
     </v-col>
@@ -50,55 +63,51 @@
 </template>
 
 <script>
-import {MapInfo} from '~/modules/mapInfo.js';
-import {Status} from '~/modules/status.js';
+import {MapInfo} from '~/modules/play/mapInfo.js';
+import {Status} from '~/modules/config/common/status.js';
   export default {
     data: () => ({
       model: null,
       mapList: [],
       nowPoint: 0,
       comboTime: 0,
+      weaponRank: [0, 1, 2, 3, 4, 5],
+      selectRank: null,
     }),
     props: {
       weaponName: String,
-      playId: String,
+      playId: Number,
       childcomboId: Number,
+      isSearch: Boolean,
+      diceNum: Number,
+      configItem: Object,
     },
     methods:{
       makeMap: function(){
         // マスに止まった際に得られる成果のリスト
         var typeList = ['blue', 'yellow darken-1', 'red', '#8b0000', 'grey'];
-        var loadJson = localStorage.getItem("type-rate-key");
-        var typeRateList = JSON.parse(loadJson);
-        if(typeRateList == null){
-          typeRateList = [15, 15, 15, 15, 40];
-        }
         var totalWeight = 0;
         this.nowPoint = 0;
         this.mapList = [];
-        for(var i=0; i<typeRateList.length; i++){
-          totalWeight += typeRateList[i];
+
+        for(var i=0; i<this.configItem.typeRateList.length; i++){
+          totalWeight += this.configItem.typeRateList[i];
         }
         this.mapList.push(new MapInfo(1, 'grey'))
         
-        var loadJson = localStorage.getItem("rate-key");
-        var LoadrateList = JSON.parse(loadJson);
-        if(LoadrateList == null){
-          LoadrateList = [0.0, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 2.0];
-        }
         // ランダムでマップ生成
         for(var i=0; i<35; i++){
-          var rateList = LoadrateList;
+          var rateList = this.configItem.mapRateList;
           for(var j=0; j<8; j++){
             var typeRnd = Math.round(Math.random() * totalWeight);
             var typeIndex = 0;
             // イベント区分の抽選
             for(var k=0; k<typeList.length; k++){
-              if(typeRnd < typeRateList[k]){
+              if(typeRnd < this.configItem.typeRateList[k]){
                 typeIndex = k;
                 break;
               }
-              typeRnd -= typeRateList[k];
+              typeRnd -= this.configItem.typeRateList[k];
             }
             // マップ成果倍率の抽選
             var rndIndex = Math.floor(Math.random() * rateList.length);
@@ -111,41 +120,96 @@ import {Status} from '~/modules/status.js';
         this.mapList[this.nowPoint].isActive = true;
       },
       playDice: function(){
-        if(this.mapList.length == 0){
+        // ダイスが0、もしくはマップの最大長を超えた場合は何もしない
+        if((this.diceNum == 0) || (this.mapList.length == 0) || (this.selectRank == null)){
           return;
         }
+        
         // マップを移動
-        var diceResult = Math.floor(Math.random() * Math.floor(6)) + 1;
+        // var diceResult = Math.floor(Math.random() * Math.floor(6)) + 1;
         this.mapList[this.nowPoint].isActive = false;
-        this.nowPoint += diceResult;
+        this.nowPoint += this.diceNum;
         this.mapList[this.nowPoint].isActive = true;
-        this.$emit('playDice', diceResult);
+        this.model = this.nowPoint;
 
-        // キャラステータスを計算
-        if(this.comboId == this.pyayId){
+        // コンボ数を算出
+        if(this.childcomboId == this.playId){
           this.comboTime++;
         }else{
           this.comboTime = 0;
         }
 
-        var comboValue = 1 + 0.2 * this.comboTime;
-        if(comboValue > 3){
-          comboValue = 3;
+        // キャラステータスを計算
+        let comboValue = 1;
+        let status = null;
+        let rndStatus = null;
+
+        if(this.isSearch){
+          comboValue += this.configItem.searchInfo.combo.rate * this.comboTime;
+          if(comboValue > this.configItem.searchInfo.combo.max){
+            comboValue = this.configItem.searchInfo.combo.max;
+          }
+          this.getMaterials();
+          status = this.configItem.searchInfo.status[this.weaponName];
+          rndStatus = new Status(0, 0, 0, 0, 0, 0);
+        }else{
+          comboValue += this.configItem.trainingInfo.combo.rate * this.comboTime;
+          if(comboValue > this.configItem.trainingInfo.combo.max){
+            comboValue = this.configItem.trainingInfo.combo.max;
+          }
+          status = this.configItem.trainingInfo.status[this.weaponName];
+          rndStatus = this.configItem.trainingInfo.statusCorrection[this.weaponName];
         }
-        var storageKey = "weapon-status" + this.playId;
-        var loadJson = localStorage.getItem(storageKey);
-        var status = JSON.parse(loadJson);
+        let charaCor = this.configItem.statusCorrection;
 
-        // 各種倍率を掛けて切り上げ
-        var str = Math.ceil(status.strength * comboValue * this.mapList[this.nowPoint].rate);
-        var dex = Math.ceil(status.dexterity * comboValue * this.mapList[this.nowPoint].rate);
-        var def = Math.ceil(status.defense * comboValue * this.mapList[this.nowPoint].rate);
-        var int = Math.ceil(status.intelligence * comboValue * this.mapList[this.nowPoint].rate);
-        var spd = Math.ceil(status.speed * comboValue * this.mapList[this.nowPoint].rate);
-        var addStatus = new Status(str, dex, def, int, spd);
+        // 各種ステータスを計算
+        let str = this.calcStatus(
+          status.strength, rndStatus.strength, comboValue, charaCor.strength);
+        let dex = this.calcStatus(
+          status.dexterity, rndStatus.dexterity, comboValue, charaCor.dexterity);
+        let def = this.calcStatus(
+          status.defense, rndStatus.defense, comboValue, charaCor.defense);
+        let int = this.calcStatus(
+          status.intelligence, rndStatus.intelligence, comboValue, charaCor.intelligence);
+        let pre = this.calcStatus(
+          status.preemption, rndStatus.preemption, comboValue, charaCor.preemption);
+        let spd = this.calcStatus(
+          status.speed, rndStatus.speed, comboValue, charaCor.speed);
+
+        let addStatus = new Status(str, dex, def, int, pre, spd);
+        
+        // 親の関数を呼び出し
         this.$emit('setCharaStatus', addStatus);
-
-      }
+        this.$emit('passedDays', this.playId);
+      },
+      // ステータスを計算して返却する（切り上げ）
+      calcStatus: function(baseNum, rndNum, combo, charaCorrection){
+        return Math.ceil(
+          (baseNum + Math.floor(Math.random() * Math.floor(rndNum)))
+          * combo
+          * this.mapList[this.nowPoint].rate
+          * charaCorrection)
+          * this.diceNum;
+      },
+      getMaterials: function(){
+        // 指定ランク・武器種の入手素材を取得
+        let materials = this.configItem.searchInfo.materials[this.weaponName][this.selectRank].materialList;
+        let metal = [];
+        let wood = [];
+        let leather = [];
+        console.log(materials);
+        for(var i=0; i< 3; i++){
+          metal.push(materials["金属"][i] * this.diceNum);
+          wood.push(materials["木材"][i] * this.diceNum);
+          leather.push(materials["皮革"][i] * this.diceNum);
+        }
+        let addMaterials = {
+          "金属": metal,
+          "木材": wood,
+          "皮革": leather
+        };
+        this.$emit('addMaterials', addMaterials);
+      },
 
     }
   }

@@ -47,7 +47,7 @@
     </v-row>
 </template>
 <script>
-import {Combo} from '~/modules/combo.js';
+import {Combo} from '~/modules/config/common/combo.js';
 export default {
 
     components: {

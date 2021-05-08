@@ -4,7 +4,7 @@ export class MapInfo{
     rate;
     // 区分
     eventType;
-
+    // 現在地点かどうか
     isActive;
 
     // コンストラクタ

@@ -2,7 +2,7 @@
   <v-card>
       <v-card-title>訓練ステータス上昇値【 {{weponName}} 】</v-card-title>
       <v-card-text>
-          武器を指定して訓練した場合の1日当たりのキャラクターのステータス上昇値を設定してください。
+          武器を指定して訓練した場合の1日当たりのキャラクターのステータス上昇値を設定してください
       </v-card-text>
       <v-card-actions>
       <v-form>
@@ -16,7 +16,7 @@
   </v-card>
 </template>
 <script>
-import {Status} from '~/modules/status.js';
+import {Status} from '~/modules/config/common/status.js';
 export default {
   data(){
     return{
