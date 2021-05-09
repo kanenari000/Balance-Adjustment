@@ -149,7 +149,7 @@ import {Status} from '~/modules/config/common/status.js';
           if(comboValue > this.configItem.searchInfo.combo.max){
             comboValue = this.configItem.searchInfo.combo.max;
           }
-          this.getMaterials();
+          this.getMaterials(comboValue);
           status = this.configItem.searchInfo.status[this.weaponName];
           rndStatus = new Status(0, 0, 0, 0, 0, 0);
         }else{
@@ -191,17 +191,18 @@ import {Status} from '~/modules/config/common/status.js';
           * charaCorrection)
           * this.diceNum;
       },
-      getMaterials: function(){
+      getMaterials: function(comboValue){
         // 指定ランク・武器種の入手素材を取得
         let materials = this.configItem.searchInfo.materials[this.weaponName][this.selectRank].materialList;
         let metal = [];
         let wood = [];
         let leather = [];
+        let mapRate = this.mapList[this.nowPoint].rate
         console.log(materials);
         for(var i=0; i< 3; i++){
-          metal.push(materials["金属"][i] * this.diceNum);
-          wood.push(materials["木材"][i] * this.diceNum);
-          leather.push(materials["皮革"][i] * this.diceNum);
+          metal.push(materials["金属"][i] * this.diceNum * mapRate * comboValue);
+          wood.push(materials["木材"][i] * this.diceNum * mapRate * comboValue);
+          leather.push(materials["皮革"][i] * this.diceNum * mapRate * comboValue);
         }
         let addMaterials = {
           "金属": metal,

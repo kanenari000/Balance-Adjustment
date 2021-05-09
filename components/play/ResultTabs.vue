@@ -95,7 +95,7 @@ export default {
         return{
             resultTab: null,
             // resultItems: new ResultSet(),
-            weaponNames: ["刀剣", "長柄", "魔法", "射撃", "格闘"],
+            weaponNames: ["刀剣", "長柄", "打撃", "射撃", "魔法"],
             materialNames: ["金属", "木材", "皮革"],
         }
     },
