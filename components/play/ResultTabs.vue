@@ -68,7 +68,7 @@
                 </v-row>
             </v-tab-item>
             <v-tab-item>
-                大会予約できるようにしたい
+                大会予約できるようにしたいな
             </v-tab-item>
         </v-tabs-items>
     </v-col>
