@@ -1,1 +1,0 @@
-window.__NUXT__=(function(a){return {staticAssetsBase:"\u002FBalance-Adjustment\u002F_nuxt\u002Fstatic\u002F1620472819",layout:"default",error:a,serverRendered:true,routePath:"\u002Fconfig",config:{app:{basePath:"\u002FBalance-Adjustment\u002F",assetsPath:"\u002FBalance-Adjustment\u002F_nuxt\u002F",cdnURL:a}}}}(null));
