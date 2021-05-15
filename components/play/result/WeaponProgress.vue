@@ -3,7 +3,7 @@
         <v-card-title>{{itemName}} </v-card-title>
         <v-list>
             <template v-for="(item, index) in rankPossessions">
-                <v-list-item :key=index>
+                <v-list-item :key="`first-${index}`">
                     <v-list-item-action>
                         <v-icon>mdi-numeric-{{index}}-box-outline</v-icon>
                     </v-list-item-action>
@@ -15,7 +15,7 @@
                 </v-list-item>
                 <v-divider
                     :inset="inset"
-                    :key=index
+                    :key="`second-${index}`"
                 ></v-divider>
             </template>
         </v-list>
@@ -31,7 +31,10 @@ export default {
   props: {
         itemName: String,
         rankPossessions: Array,
-        progressMax: Number,
+        progressMax: {
+            type: Number,
+            'default': 10,
+        }
         },
   methods:{
 

@@ -91,7 +91,7 @@ export default {
     },
     props: {
         status: {
-            type: Object,
+            type: Status,
             'default': () => { new Status(1, 1, 1, 1, 1, 1) },
         }
     },

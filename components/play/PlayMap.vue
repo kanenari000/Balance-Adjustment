@@ -13,10 +13,10 @@
           />
         </v-col>
         <v-col cols="4">
-          <v-btn color="indigo" v-on:click="playDice">
+          <v-btn color="indigo" v-on:click="playDice(true)">
             量産
           </v-btn>
-          <v-btn color="teal" v-on:click="playDice">
+          <v-btn color="teal" v-on:click="playDice(false)">
             一品
           </v-btn>
         </v-col>
@@ -65,6 +65,7 @@
 <script>
 import {MapInfo} from '~/modules/play/mapInfo.js';
 import {Status} from '~/modules/config/common/status.js';
+import {ResultSet} from '~/modules/play/resultSet.js'
   export default {
     data: () => ({
       model: null,
@@ -81,6 +82,7 @@ import {Status} from '~/modules/config/common/status.js';
       isSearch: Boolean,
       diceNum: Number,
       configItem: Object,
+      resultItems: ResultSet,
     },
     methods:{
       makeMap: function(){
@@ -119,19 +121,29 @@ import {Status} from '~/modules/config/common/status.js';
 
         this.mapList[this.nowPoint].isActive = true;
       },
-      playDice: function(){
+      playDice: function(makeFlag){
         // ダイスが0、もしくはマップの最大長を超えた場合は何もしない
         if((this.diceNum == 0) || (this.mapList.length == 0) || (this.selectRank == null)){
           return;
         }
-        
+        // 武器製造
+        this.makeWeapons(makeFlag);
+        // キャラクターのステータスを計算
+        let addStatus = this.manageStatus();        
         // マップを移動
-        // var diceResult = Math.floor(Math.random() * Math.floor(6)) + 1;
         this.mapList[this.nowPoint].isActive = false;
         this.nowPoint += this.diceNum;
         this.mapList[this.nowPoint].isActive = true;
         this.model = this.nowPoint;
 
+        setTimeout(() => {
+          // 親の関数を呼び出し
+          this.$emit('setCharaStatus', addStatus);
+          this.$emit('passedDays', this.playId);
+          this.$emit('setResult', this.resultItems);
+        }, 100);        
+      },
+      manageStatus: function(){
         // コンボ数を算出
         if(this.childcomboId == this.playId){
           this.comboTime++;
@@ -151,7 +163,7 @@ import {Status} from '~/modules/config/common/status.js';
           }
           this.getMaterials(comboValue);
           status = this.configItem.searchInfo.status[this.weaponName];
-          rndStatus = new Status(0, 0, 0, 0, 0, 0);
+          rndStatus = this.configItem.searchInfo.statusCorrection[this.weaponName];
         }else{
           comboValue += this.configItem.trainingInfo.combo.rate * this.comboTime;
           if(comboValue > this.configItem.trainingInfo.combo.max){
@@ -175,12 +187,7 @@ import {Status} from '~/modules/config/common/status.js';
           status.preemption, rndStatus.preemption, comboValue, charaCor.preemption);
         let spd = this.calcStatus(
           status.speed, rndStatus.speed, comboValue, charaCor.speed);
-
-        let addStatus = new Status(str, dex, def, int, pre, spd);
-        
-        // 親の関数を呼び出し
-        this.$emit('setCharaStatus', addStatus);
-        this.$emit('passedDays', this.playId);
+        return new Status(str, dex, def, int, pre, spd);
       },
       // ステータスを計算して返却する（切り上げ）
       calcStatus: function(baseNum, rndNum, combo, charaCorrection){
@@ -194,22 +201,78 @@ import {Status} from '~/modules/config/common/status.js';
       getMaterials: function(comboValue){
         // 指定ランク・武器種の入手素材を取得
         let materials = this.configItem.searchInfo.materials[this.weaponName][this.selectRank].materialList;
-        let metal = [];
-        let wood = [];
-        let leather = [];
-        let mapRate = this.mapList[this.nowPoint].rate
-        console.log(materials);
+        let materialsRnd = this.configItem.searchInfo.materialsCorrection[this.weaponName][this.selectRank].materialList;
+        let materialsName = ["金属", "木材", "皮革"];
+
         for(var i=0; i< 3; i++){
-          metal.push(materials["金属"][i] * this.diceNum * mapRate * comboValue);
-          wood.push(materials["木材"][i] * this.diceNum * mapRate * comboValue);
-          leather.push(materials["皮革"][i] * this.diceNum * mapRate * comboValue);
+          for(var j=0; j<3; j++){
+            this.resultItems.materialSet[materialsName[i]][j] = this.calcStatus(
+              materials[materialsName[i]][j],
+              materialsRnd[materialsName[i]][j],
+              comboValue,
+              1
+            );
+          }
         }
-        let addMaterials = {
-          "金属": metal,
-          "木材": wood,
-          "皮革": leather
-        };
-        this.$emit('addMaterials', addMaterials);
+
+      },
+      makeWeapons: function(makeFlag){
+        let madeWeponNum = 0;
+        let isMake = false;
+
+        // makeFlag =true: 量産, =false: 一品物 の生産をする
+        if(makeFlag){
+          // サイコロの目の数だけ素材数を評価して武器を生産する
+          for(var i = 0; i < this.diceNum; i++){
+            isMake = this.subMaterials(makeFlag);
+            if(!isMake){
+             break; 
+            }
+            madeWeponNum++;
+          }
+        }else{
+          // 一品物製造ゲージが0の場合は素材が足りているか判定
+          if(this.resultItems.weaponProgress[this.weaponName][this.selectRank] == 0){
+            isMake = this.subMaterials(makeFlag);
+          }else{
+            isMake = true;
+          }
+          if(isMake){
+            this.resultItems.weaponProgress[this.weaponName][this.selectRank] += this.diceNum;
+            // 一品物製造ゲージが貯まったか判定
+            if(this.resultItems.weaponProgress[this.weaponName][this.selectRank]
+              >= this.configItem.weaponProgress){
+                this.resultItems.weaponProgress[this.weaponName][this.selectRank] = 0;
+                madeWeponNum++;
+              }
+          }
+        }
+        setTimeout(() => {
+          // 武器が製造されたら武器を所持数に加算
+          this.resultItems.weaponSet[this.weaponName][this.selectRank] += madeWeponNum;
+          console.log('second');
+        },1);
+      },
+      subMaterials: function(makeFlag){
+        // 対応する武器種のレシピと現在所持している素材を取得
+        let materialsName = ["金属", "木材", "皮革"];
+        let recipe = this.configItem.weaponsInfoList[this.weaponName][this.selectRank].recipe;
+        let makeRate = makeFlag ? 1: 5;
+
+        for(var j = 0; j < 3; j++){
+          for(var k = 0; k < 3; k++){
+            this.resultItems.materialSet[materialsName[k]][j] -= recipe[materialsName[k]][j] * makeRate;
+            if (this.resultItems.materialSet[materialsName[k]][j] < 0){
+              // 素材が足りないため素材生産をキャンセル
+              this.resultItems.materialSet[materialsName[k]][j] += recipe[materialsName[k]][j] * makeRate;
+              return false;
+            }
+          }
+        }
+        return true;
+      },
+      excuteShop: function(){
+
       },
 
     }

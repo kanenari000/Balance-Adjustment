@@ -16,58 +16,63 @@
             <v-tab> 大会予約 </v-tab>
         </v-tabs>
         <v-tabs-items v-model="resultTab">
-            <v-tab-item>
+            <v-tab-item eager>
                 <v-row>
                     <v-col><status-result :status="status" /></v-col>
                 </v-row>
             </v-tab-item>
-            <v-tab-item>
+            <v-tab-item eager>
                 <v-row>
                     <v-col v-for="weaponName in weaponNames" :key="weaponName">
                         <my-material :itemName="weaponName" :rankPossessions="resultItems.weaponSet[weaponName]"/>
                     </v-col>
                 </v-row>
             </v-tab-item>
-            <v-tab-item>
+            <v-tab-item eager>
                 <v-row>
                     <v-col v-for="materialName in materialNames" :key="materialName">
                         <my-material :itemName="materialName" :rankPossessions="resultItems.materialSet[materialName]"/>
                     </v-col>
                 </v-row>
             </v-tab-item>
-            <v-tab-item>
+            <v-tab-item eager>
                 <v-row>
                     <v-col v-for="weaponName in weaponNames" :key="weaponName">
-                        <shop-weapons :itemName="weaponName" :rankPossessions="resultItems.weaponSet[weaponName]"/>
+                        <shop-weapons
+                            :itemName="weaponName"
+                            :rankPossessions="resultItems.shopWeaponSet[weaponName]"
+                            :hasWeaponsNum="resultItems.weaponSet[weaponName]"
+                            @setWeapons="setWeapons"
+                        />
                     </v-col>
                 </v-row>
             </v-tab-item>
-            <v-tab-item>
+            <v-tab-item eager>
                 <shop-update 
                     :shopRateStage="resultItems.shopRateStage" 
                     :shopValueStage="resultItems.shopValueStage"
                     :shopLimitStage="resultItems.shopLimitStage"
                 />
             </v-tab-item>
-            <v-tab-item>
+            <v-tab-item eager>
                 <map-summary
                     :mapTypeSelect="resultItems.mapTypeSelect"
                     :trainingSelect="resultItems.trainingSelect"
                     :searchSelect="resultItems.searchSelect"
                 />
             </v-tab-item>
-            <v-tab-item>
+            <v-tab-item eager>
                 <v-row>
                     <v-col v-for="weaponName in weaponNames" :key="weaponName">
                         <weapon-progress 
                             :itemName="weaponName" 
                             :rankPossessions="resultItems.weaponProgress[weaponName]"
-                            progressMax=10
+                            :progressMax="configInfo.weaponProgress"
                         />
                     </v-col>
                 </v-row>
             </v-tab-item>
-            <v-tab-item>
+            <v-tab-item eager>
                 大会予約できるようにしたいな
             </v-tab-item>
         </v-tabs-items>
@@ -76,6 +81,7 @@
 <script>
 import {Status} from '~/modules/config/common/status.js';
 import {ResultSet} from '~/modules/play/resultSet.js';
+import {ConfigItems} from '~/modules/config/common/configItems.js';
 import StatusResult from '~/components/play/result/StatusResult.vue';
 import MyMaterial from './result/MyMaterial.vue';
 import ShopWeapons from './result/ShopWeapons.vue';
@@ -105,9 +111,22 @@ export default {
             'default': () => { new Status(1, 1, 1, 1, 1, 1) },
         },
         resultItems: ResultSet,
+        configInfo: {
+            type: ConfigItems,
+            'default': () => { new ConfigItems()},
+        },
+
     },
     methods:{
+        setWeapons: function(weapon){
+            this.$set(
+                this.resultItems.shopWeaponSet[weapon["weapon"]],
+                [weapon["rank"]],
+                this.resultItems.shopWeaponSet[weapon["weapon"]][weapon["rank"]] + weapon["setNum"]
+            );
+        }
 
-    }
+    },
+    
 }
 </script>

@@ -51,7 +51,11 @@
       </v-row>
     </v-col>
     <!-- 実行結果を表示するタブ -->
-    <result-tabs :status="charaStatus" :resultItems="resultItems"/>
+    <result-tabs
+      :status="charaStatus"
+      :resultItems="resultItems"
+      :configInfo="configInfo"
+    />
     <!-- 各武器種に対応するマス目 -->
     <v-col cols="12">
       <v-tabs
@@ -75,12 +79,14 @@
               :ref="'PlayMap'+index"
               @passedDays="passedDays"
               @setCharaStatus="setCharaStatus"
+              @setResult="setResult"
               :weaponName="weaponName"
               :childcomboId="comboId"
               :isSearch=false
               :diceNum="diceResult"
               :configItem="configInfo"
               :playId="index"
+              :resultItems="resultItems"
             />
           </template>
         </v-tab-item>
@@ -91,13 +97,14 @@
               :ref="'PlayMap' + (index + 5)" 
               @passedDays="passedDays"
               @setCharaStatus="setCharaStatus"
-              @addMaterials="addMaterials"
+              @setResult="setResult"
               :weaponName="weaponName"
               :childcomboId="comboId"
               :isSearch=true
               :diceNum="diceResult"
               :configItem="configInfo"
               :playId="index+5"
+              :resultItems="resultItems"
             />
           </template>
         </v-tab-item>
@@ -133,7 +140,7 @@ export default {
       tab: null,
       myMoney: 0,
       isLoad: false,
-      configInfo: null,
+      configInfo: new ConfigItems(),
       diceResult: 0,
       isNextTurn: false,
       weaponNames: ["刀剣", "長柄", "打撃", "射撃", "魔法"],
@@ -195,21 +202,24 @@ export default {
         charaStatus.speed,
       )
     },
-    addMaterials: function(material){
-      let tmpMaterial = this.resultItems.materialSet
-      let metal = [];
-      let wood = [];
-      let leather = [];
-      for(var i=0; i< 3; i++){
-        metal.push(tmpMaterial["金属"][i] + material["金属"][i]);
-        wood.push(tmpMaterial["木材"][i] + material["木材"][i]);
-        leather.push(tmpMaterial["皮革"][i] + material["皮革"][i]);
+    setResult: function(result){
+      // 実行結果を反映
+      let weapons = ["刀剣", "長柄", "打撃", "射撃", "魔法"];
+      let materials = ["金属", "木材", "皮革"];
+      console.log(result);
+      for(var i=0; i < 5; i++){
+          for(var j=0; j<6; j++){
+            this.$set(this.resultItems.weaponSet[weapons[i]], j, result.weaponSet[weapons[i]][j]);
+            this.$set(this.resultItems.weaponProgress[weapons[i]], j, result.weaponProgress[weapons[i]][j]);
+          }
+          this.$set(this.resultItems.trainingSelect, weapons[i], result.trainingSelect[weapons[i]]);
+          this.$set(this.resultItems.searchSelect, weapons[i], result.searchSelect[weapons[i]]);
       }
-      this.resultItems.materialSet = {
-        "金属": metal,
-        "木材": wood,
-        "皮革": leather
-      };
+      for(var i=0; i<3; i++){
+          for(var j=0; j<3; j++){
+              this.$set(this.resultItems.materialSet[materials[i]], j, result.materialSet[materials[i]][j]);
+          }
+      }
 
     }
 
