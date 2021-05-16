@@ -135,6 +135,21 @@ import {ResultSet} from '~/modules/play/resultSet.js'
         this.nowPoint += this.diceNum;
         this.mapList[this.nowPoint].isActive = true;
         this.model = this.nowPoint;
+        // 実行結果サマリに追加
+        let eventMap = {
+          'blue': "青",
+          'yellow darken-1': "黄",
+          'red': "赤",
+          '#8b0000': "濃赤",
+          'grey': "無色"
+        }
+        let selectEvnt = eventMap[this.mapList[this.nowPoint].eventType];
+        this.resultItems.mapTypeSelect[selectEvnt]++;
+        if(this.isSearch){
+          this.resultItems.searchSelect[this.weaponName]++;
+        }else{
+          this.resultItems.trainingSelect[this.weaponName]++;
+        }
 
         setTimeout(() => {
           // 親の関数を呼び出し

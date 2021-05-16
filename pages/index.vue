@@ -213,6 +213,8 @@ export default {
       // 実行結果を反映
       let weapons = ["刀剣", "長柄", "打撃", "射撃", "魔法"];
       let materials = ["金属", "木材", "皮革"];
+      let mapType = ["青", "黄", "赤", "濃赤", "無色"];
+      console.log(result);
       
       for(var i=0; i < 5; i++){
           for(var j=0; j<6; j++){
@@ -221,6 +223,7 @@ export default {
           }
           this.$set(this.resultItems.trainingSelect, weapons[i], result.trainingSelect[weapons[i]]);
           this.$set(this.resultItems.searchSelect, weapons[i], result.searchSelect[weapons[i]]);
+          this.$set(this.resultItems.mapTypeSelect, mapType[i], result.mapTypeSelect[mapType[i]])
       }
       for(var i=0; i<3; i++){
           for(var j=0; j<3; j++){
