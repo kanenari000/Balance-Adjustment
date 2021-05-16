@@ -19,7 +19,6 @@
                 ></v-divider>
             </template>
         </v-list>
-        <v-btn v-on:click="showInfo">test</v-btn>
     </v-card>
 </template>
 <script>
@@ -34,10 +33,6 @@ export default {
         rankPossessions: Array,
     },
     methods:{
-        showInfo: function(){
-            console.log(this.rankPossessions);
-        }
-
     },
 }
 </script>

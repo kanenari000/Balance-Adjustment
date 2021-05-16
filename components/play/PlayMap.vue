@@ -16,7 +16,7 @@
           <v-btn color="indigo" v-on:click="playDice(true)">
             量産
           </v-btn>
-          <v-btn color="teal" v-on:click="playDice(false)">
+          <v-btn color="teal" v-on:click="playDice(false)" :disabled="isOne()">
             一品
           </v-btn>
         </v-col>
@@ -73,7 +73,7 @@ import {ResultSet} from '~/modules/play/resultSet.js'
       nowPoint: 0,
       comboTime: 0,
       weaponRank: [0, 1, 2, 3, 4, 5],
-      selectRank: null,
+      selectRank: 0,
     }),
     props: {
       weaponName: String,
@@ -123,7 +123,7 @@ import {ResultSet} from '~/modules/play/resultSet.js'
       },
       playDice: function(makeFlag){
         // ダイスが0、もしくはマップの最大長を超えた場合は何もしない
-        if((this.diceNum == 0) || (this.mapList.length == 0) || (this.selectRank == null)){
+        if((this.diceNum == 0) || (this.mapList.length == 0)){
           return;
         }
         // 武器製造
@@ -139,9 +139,9 @@ import {ResultSet} from '~/modules/play/resultSet.js'
         setTimeout(() => {
           // 親の関数を呼び出し
           this.$emit('setCharaStatus', addStatus);
-          this.$emit('passedDays', this.playId);
           this.$emit('setResult', this.resultItems);
-        }, 100);        
+          this.$emit('passedDays', this.playId);
+        }, 10);        
       },
       manageStatus: function(){
         // コンボ数を算出
@@ -231,26 +231,20 @@ import {ResultSet} from '~/modules/play/resultSet.js'
             madeWeponNum++;
           }
         }else{
-          // 一品物製造ゲージが0の場合は素材が足りているか判定
           if(this.resultItems.weaponProgress[this.weaponName][this.selectRank] == 0){
-            isMake = this.subMaterials(makeFlag);
-          }else{
-            isMake = true;
+            this.subMaterials(makeFlag);
           }
-          if(isMake){
-            this.resultItems.weaponProgress[this.weaponName][this.selectRank] += this.diceNum;
-            // 一品物製造ゲージが貯まったか判定
-            if(this.resultItems.weaponProgress[this.weaponName][this.selectRank]
-              >= this.configItem.weaponProgress){
-                this.resultItems.weaponProgress[this.weaponName][this.selectRank] = 0;
-                madeWeponNum++;
-              }
-          }
+          this.resultItems.weaponProgress[this.weaponName][this.selectRank] += this.diceNum;
+          // 一品物製造ゲージが貯まったか判定
+          if(this.resultItems.weaponProgress[this.weaponName][this.selectRank]
+            >= this.configItem.weaponProgress){
+              this.resultItems.weaponProgress[this.weaponName][this.selectRank] = 0;
+              madeWeponNum++;
+            }
         }
         setTimeout(() => {
           // 武器が製造されたら武器を所持数に加算
           this.resultItems.weaponSet[this.weaponName][this.selectRank] += madeWeponNum;
-          console.log('second');
         },1);
       },
       subMaterials: function(makeFlag){
@@ -271,8 +265,24 @@ import {ResultSet} from '~/modules/play/resultSet.js'
         }
         return true;
       },
-      excuteShop: function(){
-
+      isOne: function(){
+        // 一品物製造ゲージが0の場合は素材が足りているか判定
+        if(this.resultItems.weaponProgress[this.weaponName][this.selectRank] == 0){
+          let materialsName = ["金属", "木材", "皮革"];
+          let recipe = this.configItem.weaponsInfoList[this.weaponName][this.selectRank].recipe;
+          let tmpVal = this.resultItems.materialSet;
+          for(var j = 0; j < 3; j++){
+            for(var k = 0; k < 3; k++){              
+              if ((tmpVal[materialsName[k]][j] - (recipe[materialsName[k]][j] * 5)) < 0){
+                // 素材が足りないため素材生産をキャンセル
+                return true;
+              }
+            }
+          }
+          return false;
+        }else{
+          return false;
+        }
       },
 
     }

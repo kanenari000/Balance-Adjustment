@@ -57,7 +57,7 @@ export default {
     },
     methods:{
         setWeapons: function(rank, setNum){
-            console.log(this.hasWeaponsNum[rank] >= this.rankPossessions[rank])
+            // console.log(this.hasWeaponsNum[rank] >= this.rankPossessions[rank])
             // 親に情報を送信
             this.$emit(
                 'setWeapons',

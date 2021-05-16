@@ -12,7 +12,14 @@
                                 </v-list-item-title>
                             </v-list-item-content>
                             <v-list-item-action>
-                                <v-btn fab small><v-icon>mdi-plus</v-icon></v-btn>
+                                <v-btn
+                                    fab
+                                    small
+                                    :disabled="isRankAble(item)"
+                                    v-on:click="updateRateRank(item)"
+                                >
+                                    <v-icon>mdi-plus</v-icon>
+                                </v-btn>
                             </v-list-item-action>
                         </v-list-item>
                         <v-divider
@@ -35,7 +42,14 @@
                                 </v-list-item-title>
                             </v-list-item-content>
                             <v-list-item-action>
-                                <v-btn fab small><v-icon>mdi-plus</v-icon></v-btn>
+                                <v-btn
+                                    fab
+                                    small
+                                    :disabled="isValueAble(item)"
+                                    v-on:click="updateValueRank(item)"
+                                >
+                                    <v-icon>mdi-plus</v-icon>
+                                </v-btn>
                             </v-list-item-action>
                         </v-list-item>
                         <v-divider
@@ -62,6 +76,7 @@
                                     :v-model="stage"
                                     inset
                                     :label="String(index+1)"
+                                    @change="updateLimitRank(item, index)"
                                 ></v-switch>
                             </v-list-item-action>
                         </v-list-item>
@@ -91,6 +106,21 @@ export default {
         shopLimitStage: Object,
     },
     methods:{
+        isRankAble: function(item){
+            return this.shopRateStage[item] > 3;
+        },
+        isValueAble: function(item){
+            return this.shopValueStage[item] > 3;
+        },
+        updateRateRank: function(item){
+            this.$emit("updateShopStage", {"key": item, "index": this.shopRateStage[item]});
+        },
+        updateValueRank: function(item){
+            this.$emit("updateShopStage", {"key": item, "index": this.shopValueStage[item]});
+        },
+        updateLimitRank: function(item, index){
+            this.$emit("updateShopStage", {"key": item, "index": index});
+        },
 
     }
 }

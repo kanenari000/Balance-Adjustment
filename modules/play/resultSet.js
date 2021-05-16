@@ -62,8 +62,8 @@ export class ResultSet{
             "置物": 0
         };
         this.shopLimitStage = {
-            "広告": [0, 0, 0, 0],
-            "イベントスペース": [0, 0, 0, 0]
+            "広告": [false, false, false, false],
+            "イベントスペース": [false, false, false, false]
         };
         this.mapTypeSelect = {
             "無色": 0,

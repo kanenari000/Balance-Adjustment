@@ -8,12 +8,12 @@
         >
             <v-tab> キャラクターステータス </v-tab>
             <v-tab> 所持武器 </v-tab>
+            <v-tab> 一品物製造状態 </v-tab>
             <v-tab> 所持素材 </v-tab>
             <v-tab> 店舗陳列 </v-tab>
             <v-tab> 店強化 </v-tab>
-            <v-tab> マス目サマリ </v-tab>
-            <v-tab> 一品物製造状態 </v-tab>
             <v-tab> 大会予約 </v-tab>
+            <v-tab> マス目サマリ </v-tab>
         </v-tabs>
         <v-tabs-items v-model="resultTab">
             <v-tab-item eager>
@@ -25,6 +25,17 @@
                 <v-row>
                     <v-col v-for="weaponName in weaponNames" :key="weaponName">
                         <my-material :itemName="weaponName" :rankPossessions="resultItems.weaponSet[weaponName]"/>
+                    </v-col>
+                </v-row>
+            </v-tab-item>
+            <v-tab-item eager>
+                <v-row>
+                    <v-col v-for="weaponName in weaponNames" :key="weaponName">
+                        <weapon-progress 
+                            :itemName="weaponName" 
+                            :rankPossessions="resultItems.weaponProgress[weaponName]"
+                            :progressMax="configInfo.weaponProgress"
+                        />
                     </v-col>
                 </v-row>
             </v-tab-item>
@@ -52,7 +63,11 @@
                     :shopRateStage="resultItems.shopRateStage" 
                     :shopValueStage="resultItems.shopValueStage"
                     :shopLimitStage="resultItems.shopLimitStage"
+                    @updateShopStage="updateShopStage"
                 />
+            </v-tab-item>
+            <v-tab-item eager>
+                大会予約できるようにしたいな
             </v-tab-item>
             <v-tab-item eager>
                 <map-summary
@@ -60,20 +75,6 @@
                     :trainingSelect="resultItems.trainingSelect"
                     :searchSelect="resultItems.searchSelect"
                 />
-            </v-tab-item>
-            <v-tab-item eager>
-                <v-row>
-                    <v-col v-for="weaponName in weaponNames" :key="weaponName">
-                        <weapon-progress 
-                            :itemName="weaponName" 
-                            :rankPossessions="resultItems.weaponProgress[weaponName]"
-                            :progressMax="configInfo.weaponProgress"
-                        />
-                    </v-col>
-                </v-row>
-            </v-tab-item>
-            <v-tab-item eager>
-                大会予約できるようにしたいな
             </v-tab-item>
         </v-tabs-items>
     </v-col>
@@ -124,6 +125,9 @@ export default {
                 [weapon["rank"]],
                 this.resultItems.shopWeaponSet[weapon["weapon"]][weapon["rank"]] + weapon["setNum"]
             );
+        },
+        updateShopStage: function(item){
+            this.$emit("updateShop", item);
         }
 
     },

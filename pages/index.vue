@@ -43,6 +43,7 @@
                 elevation="2"
                 fab
                 v-on:click="playDice"
+                :disabled="!isNextTurn"
               >
                 <v-icon size="40">mdi-dice-multiple</v-icon>
               </v-btn>
@@ -55,6 +56,7 @@
       :status="charaStatus"
       :resultItems="resultItems"
       :configInfo="configInfo"
+      @updateShop="updateShop"
     />
     <!-- 各武器種に対応するマス目 -->
     <v-col cols="12">
@@ -138,7 +140,7 @@ export default {
       charaStatus: new Status(1, 1, 1, 1, 1, 1),
       comboId: 100,
       tab: null,
-      myMoney: 0,
+      myMoney: 10000000,
       isLoad: false,
       configInfo: new ConfigItems(),
       diceResult: 0,
@@ -159,11 +161,12 @@ export default {
       this.isNextTurn = true;
     },
     playDice: function(){
-      // サイコロを振っていない状態ならばサイコロを振る
-      if(this.isNextTurn){
-        this.diceResult = Math.floor(Math.random() * Math.floor(6)) + 1;
-        this.isNextTurn = false;
+      this.diceResult = Math.floor(Math.random() * Math.floor(6)) + 1;
+      // 残り日数がマイナスにならないように調整
+      if(this.daysLeft-this.diceResult < 0){
+        this.diceResult = this.daysLeft;
       }
+      this.isNextTurn = false;
     },
     makeMaps: function(){
       // マップ生成が重ためなのでインジケーターを表示
@@ -189,6 +192,7 @@ export default {
 
       this.nowDay = 0;
       this.daysLeft = 280;
+      this.myMoney = 0;
       this.resultItems.resetResultSet();
       this.charaStatus.resetCharaStatus();
     },
@@ -203,10 +207,13 @@ export default {
       )
     },
     setResult: function(result){
+      // 店の清算を実行
+      this.excuteShop();
+
       // 実行結果を反映
       let weapons = ["刀剣", "長柄", "打撃", "射撃", "魔法"];
       let materials = ["金属", "木材", "皮革"];
-      console.log(result);
+      
       for(var i=0; i < 5; i++){
           for(var j=0; j<6; j++){
             this.$set(this.resultItems.weaponSet[weapons[i]], j, result.weaponSet[weapons[i]][j]);
@@ -221,7 +228,85 @@ export default {
           }
       }
 
-    }
+    },
+    excuteShop: function(){
+      // todo: ショップ期間限定強化の清算をする
+      let shopInfo = this.configInfo.shopInfoList;
+      let weaponInfo = this.configInfo.weaponsInfoList;
+      let shopRateStage = this.resultItems.shopRateStage;
+      let shopValueStage = this.resultItems.shopValueStage;
+      let shopWeapon = this.resultItems.shopWeaponSet;
+      let weapons = ["刀剣", "長柄", "打撃", "射撃", "魔法"];
+      let shopRate = 1 + shopInfo["空調"][shopRateStage["空調"]].value + shopInfo["清掃用具"][shopRateStage["清掃用具"]].value;
+      let shopValue = 1 + shopInfo["一品物陳列棚"][shopValueStage["一品物陳列棚"]].value + shopInfo["置物"][shopValueStage["置物"]].value;
+      let shopLimitRate = 1;
+      let shopLimitValue = 1;
+      // 期間強化を計算
+      for(var i=0; i<4; i++){
+        if(this.resultItems.shopLimitStage["広告"][i]){
+          if(this.myMoney - this.configInfo.shopInfoList["広告"][i].price >= 0){
+            this.myMoney -= this.configInfo.shopInfoList["広告"][i].price;
+            shopLimitRate += shopInfo["広告"][i].value;
+          }else{
+            this.resultItems.shopLimitStage["広告"][i] = false;
+          }
+        }
+        if(this.resultItems.shopLimitStage["イベントスペース"][i]){
+          if(this.myMoney - this.configInfo.shopInfoList["イベントスペース"][i].price >= 0){
+            this.myMoney -= this.configInfo.shopInfoList["イベントスペース"][i].price;
+            shopLimitRate += shopInfo["イベントスペース"][i].value;
+          }else{
+            this.resultItems.shopLimitStage["イベントスペース"][i] = false;
+          }
+        }
+        
+      }
+
+      for(var i=0; i<5; i++){
+        for(var j=0; j<6; j++){
+          let targetRate = weaponInfo[weapons[i]][j].rate * shopRate * shopLimitRate;
+          let targetValue = Math.floor(weaponInfo[weapons[i]][j].value * shopValue * shopLimitValue);
+          for(var k=0; k<shopWeapon[weapons[i]][j]; k++){
+            if(this.judgeShop(targetRate)){
+              // 売れた場合の処理を実行
+              this.resultItems.shopWeaponSet[weapons[i]][j]--;
+              this.resultItems.weaponSet[weapons[i]][j]--;
+              this.myMoney += targetValue;
+            }
+          }
+        }
+      }
+
+    },
+    judgeShop: function(targetRate){
+      console.log(this.diceResult);
+      // 売れたかどうかを判定する
+      for(var i=0; i<this.diceResult; i++){
+        let randNum = Math.random();
+        if(randNum < targetRate){
+          return true;
+        }
+      }
+      setTimeout(()=>{
+        return false;
+      },1);
+    },
+    updateShop: function(item){
+      // 強化資金が足りているか判定
+      if(this.myMoney - this.configInfo.shopInfoList[item.key][item.index].price >= 0){
+        if((item.key == "空調") || (item.key == "清掃用具")){
+          this.resultItems.shopRateStage[item.key]++;
+          this.myMoney -= this.configInfo.shopInfoList[item.key][item.index].price;
+        }else if((item.key == "一品物陳列棚") || (item.key == "置物")){
+          this.resultItems.shopValueStage[item.key]++;
+          this.myMoney -= this.configInfo.shopInfoList[item.key][item.index].price;
+        }else{
+          // 期間限定のショップ強化はターン進行時に清算するためここではお金は減らないようにする
+          // 現在の状態を反転
+          this.resultItems.shopLimitStage[item.key][item.index] = !this.resultItems.shopLimitStage[item.key][item.index];
+        }
+      }
+    },
 
   },
   mounted(){
