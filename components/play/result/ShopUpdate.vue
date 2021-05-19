@@ -72,12 +72,11 @@
                                 </v-list-item-title>
                             </v-list-item-content>
                             <v-list-item-action>
-                                <v-switch v-for="(stage, index) in shopLimitStage[item]" :key=index
-                                    :v-model="stage"
-                                    inset
+                                <v-checkbox v-for="(stage, index) in shopLimitStage[item]" :key=index
+                                    :input-value="stage"
                                     :label="String(index+1)"
                                     @change="updateLimitRank(item, index)"
-                                ></v-switch>
+                                ></v-checkbox>
                             </v-list-item-action>
                         </v-list-item>
                         <v-divider
@@ -86,6 +85,7 @@
                         ></v-divider>
                     </template>
                 </v-list>
+                <v-btn v-on:click="showItem()">test</v-btn>
             </v-card>
         </v-col>
     </v-row>
@@ -121,6 +121,9 @@ export default {
         updateLimitRank: function(item, index){
             this.$emit("updateShopStage", {"key": item, "index": index});
         },
+        showItem: function name() {
+            console.log(this.shopLimitStage);
+        }
 
     }
 }

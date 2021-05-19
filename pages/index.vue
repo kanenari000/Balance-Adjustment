@@ -214,7 +214,6 @@ export default {
       let weapons = ["刀剣", "長柄", "打撃", "射撃", "魔法"];
       let materials = ["金属", "木材", "皮革"];
       let mapType = ["青", "黄", "赤", "濃赤", "無色"];
-      console.log(result);
       
       for(var i=0; i < 5; i++){
           for(var j=0; j<6; j++){
@@ -251,7 +250,7 @@ export default {
             this.myMoney -= this.configInfo.shopInfoList["広告"][i].price;
             shopLimitRate += shopInfo["広告"][i].value;
           }else{
-            this.resultItems.shopLimitStage["広告"][i] = false;
+            this.$set(this.resultItems.shopLimitStage["広告"], [i], false);
           }
         }
         if(this.resultItems.shopLimitStage["イベントスペース"][i]){
@@ -259,7 +258,7 @@ export default {
             this.myMoney -= this.configInfo.shopInfoList["イベントスペース"][i].price;
             shopLimitRate += shopInfo["イベントスペース"][i].value;
           }else{
-            this.resultItems.shopLimitStage["イベントスペース"][i] = false;
+            this.$set(this.resultItems.shopLimitStage["イベントスペース"], [i], false);
           }
         }
         
@@ -282,7 +281,6 @@ export default {
 
     },
     judgeShop: function(targetRate){
-      console.log(this.diceResult);
       // 売れたかどうかを判定する
       for(var i=0; i<this.diceResult; i++){
         let randNum = Math.random();
@@ -303,11 +301,16 @@ export default {
         }else if((item.key == "一品物陳列棚") || (item.key == "置物")){
           this.resultItems.shopValueStage[item.key]++;
           this.myMoney -= this.configInfo.shopInfoList[item.key][item.index].price;
-        }else{
-          // 期間限定のショップ強化はターン進行時に清算するためここではお金は減らないようにする
-          // 現在の状態を反転
-          this.resultItems.shopLimitStage[item.key][item.index] = !this.resultItems.shopLimitStage[item.key][item.index];
         }
+      }
+      if((item.key == "広告") || (item.key == "イベントスペース")){
+        // 期間限定のショップ強化はターン進行時に清算するためここではお金は減らないようにする
+        // 現在の状態を反転
+        this.$set(
+          this.resultItems.shopLimitStage[item.key],
+          item.index,
+          !this.resultItems.shopLimitStage[item.key][item.index]
+        );
       }
     },
 

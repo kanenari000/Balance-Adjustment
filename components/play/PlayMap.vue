@@ -221,7 +221,7 @@ import {ResultSet} from '~/modules/play/resultSet.js'
 
         for(var i=0; i< 3; i++){
           for(var j=0; j<3; j++){
-            this.resultItems.materialSet[materialsName[i]][j] = this.calcStatus(
+            this.resultItems.materialSet[materialsName[i]][j] += this.calcStatus(
               materials[materialsName[i]][j],
               materialsRnd[materialsName[i]][j],
               comboValue,
