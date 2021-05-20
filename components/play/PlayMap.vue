@@ -13,7 +13,7 @@
           />
         </v-col>
         <v-col cols="4">
-          <v-btn color="indigo" v-on:click="playDice(true)">
+          <v-btn color="indigo" v-on:click="playDice(true)" :disabled="isMassProduct()">
             量産
           </v-btn>
           <v-btn color="teal" v-on:click="playDice(false)" :disabled="isOne()">
@@ -83,6 +83,7 @@ import {ResultSet} from '~/modules/play/resultSet.js'
       diceNum: Number,
       configItem: Object,
       resultItems: ResultSet,
+      isBattle: Boolean,
     },
     methods:{
       makeMap: function(){
@@ -281,6 +282,9 @@ import {ResultSet} from '~/modules/play/resultSet.js'
         return true;
       },
       isOne: function(){
+        if(this.isMassProduct()){
+          return true;
+        }
         // 一品物製造ゲージが0の場合は素材が足りているか判定
         if(this.resultItems.weaponProgress[this.weaponName][this.selectRank] == 0){
           let materialsName = ["金属", "木材", "皮革"];
@@ -299,6 +303,9 @@ import {ResultSet} from '~/modules/play/resultSet.js'
           return false;
         }
       },
+      isMassProduct: function(){
+        return this.isBattle || (this.diceNum == 0);
+      }
 
     }
   }

@@ -85,7 +85,6 @@
                         ></v-divider>
                     </template>
                 </v-list>
-                <v-btn v-on:click="showItem()">test</v-btn>
             </v-card>
         </v-col>
     </v-row>
@@ -121,9 +120,6 @@ export default {
         updateLimitRank: function(item, index){
             this.$emit("updateShopStage", {"key": item, "index": index});
         },
-        showItem: function name() {
-            console.log(this.shopLimitStage);
-        }
 
     }
 }

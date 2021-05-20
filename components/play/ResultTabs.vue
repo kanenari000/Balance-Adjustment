@@ -67,7 +67,10 @@
                 />
             </v-tab-item>
             <v-tab-item eager>
-                大会予約できるようにしたいな
+                <calendars
+                    :battleDays="battleDays"
+                    @setBattleDays="setBattleDays"
+                />
             </v-tab-item>
             <v-tab-item eager>
                 <map-summary
@@ -89,6 +92,7 @@ import ShopWeapons from './result/ShopWeapons.vue';
 import ShopUpdate from './result/ShopUpdate.vue';
 import MapSummary from './result/MapSummary.vue';
 import WeaponProgress from './result/WeaponProgress.vue';
+import Calendars from './result/Calendars.vue';
 export default {
     components: {
         StatusResult,
@@ -97,6 +101,7 @@ export default {
         ShopUpdate,
         MapSummary,
         WeaponProgress,
+        Calendars,
     },
     data(){
         return{
@@ -116,6 +121,7 @@ export default {
             type: ConfigItems,
             'default': () => { new ConfigItems()},
         },
+        battleDays: Array,
 
     },
     methods:{
@@ -128,6 +134,9 @@ export default {
         },
         updateShopStage: function(item){
             this.$emit("updateShop", item);
+        },
+        setBattleDays: function(item){
+            this.$emit("setBattleDays", item);
         }
 
     },

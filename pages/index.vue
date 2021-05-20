@@ -56,7 +56,9 @@
       :status="charaStatus"
       :resultItems="resultItems"
       :configInfo="configInfo"
+      :battleDays="battleDays"
       @updateShop="updateShop"
+      @setBattleDays="setBattleDays"
     />
     <!-- 各武器種に対応するマス目 -->
     <v-col cols="12">
@@ -71,6 +73,9 @@
         </v-tab>
         <v-tab>
           探索
+        </v-tab>
+        <v-tab>
+          大会
         </v-tab>
       </v-tabs>
       <v-tabs-items v-model="tab">
@@ -89,6 +94,7 @@
               :configItem="configInfo"
               :playId="index"
               :resultItems="resultItems"
+              :isBattle="isBattle"
             />
           </template>
         </v-tab-item>
@@ -107,8 +113,19 @@
               :configItem="configInfo"
               :playId="index+5"
               :resultItems="resultItems"
+              :isBattle="isBattle"
             />
           </template>
+        </v-tab-item>
+        <v-tab-item eager>
+          <battle-tab
+            :isBattle="isBattle"
+            :diceNum="diceResult"
+            :configItem="configInfo"
+            :resultItems="resultItems"
+            @passedDays="passedDays"
+            @setResult="setResult"
+          />
         </v-tab-item>
       </v-tabs-items>
     </v-col>
@@ -128,10 +145,12 @@ import ResultTabs from '../components/play/ResultTabs.vue';
 import {Status} from '~/modules/config/common/status.js';
 import {ConfigItems} from '~/modules/config/common/configItems.js';
 import {ResultSet} from '~/modules/play/resultSet.js';
+import BattleTab from '../components/play/BattleTab.vue';
 export default {
   components: {
     PlayMap,
     ResultTabs,
+    BattleTab,
   },
   data(){
     return{
@@ -147,6 +166,8 @@ export default {
       isNextTurn: false,
       weaponNames: ["刀剣", "長柄", "打撃", "射撃", "魔法"],
       resultItems: new ResultSet(),
+      battleDays: [],
+      isBattle: false,
     }
   },
   props: {
@@ -159,14 +180,47 @@ export default {
       this.daysLeft -= this.diceResult;
       this.diceResult = 0;
       this.isNextTurn = true;
+      // 大会フラグが立っている場合はフラグを下す
+      if(this.isBattle){
+        this.isBattle = false;
+        // 大会後のインターバル内に予約した大会があるか確認し、あれば除去
+        let tmpBattleDays = this.battleDays;
+        if(this.battleDays.length != 0){
+          for(var i=0; i < tmpBattleDays.length; i++){
+            if(tmpBattleDays[i] > this.nowDay){
+              break;
+            }else{
+              this.battleDays = this.battleDays.filter(n => n !== tmpBattleDays[i]);
+            }
+          }
+        }
+      }
+      // 翌日が大会予約日か判定
+      if(this.battleDays.length != 0){
+        if(this.nowDay+1 == this.battleDays[0]){
+          // 大会予約日の場合1日追加して大会フラグを立てる
+          this.isBattle = true;
+          this.battleDays = this.battleDays.filter(n => n !== this.battleDays[0]);
+          this.nowDay++;
+          this.daysLeft--;
+        }
+      }
     },
     playDice: function(){
       this.diceResult = Math.floor(Math.random() * Math.floor(6)) + 1;
+      // 大会予約日に合わせてダイス上限を設定
+      if(!this.isBattle && (this.battleDays.length != 0)){
+        let battleLeft = this.battleDays[0] - this.nowDay;
+        this.diceResult = (this.diceResult >= battleLeft) ? battleLeft-1:  this.diceResult;
+      }
       // 残り日数がマイナスにならないように調整
       if(this.daysLeft-this.diceResult < 0){
         this.diceResult = this.daysLeft;
       }
       this.isNextTurn = false;
+      if(this.diceResult == 0){
+        this.passedDays(100);
+      }
     },
     makeMaps: function(){
       // マップ生成が重ためなのでインジケーターを表示
@@ -261,9 +315,7 @@ export default {
             this.$set(this.resultItems.shopLimitStage["イベントスペース"], [i], false);
           }
         }
-        
       }
-
       for(var i=0; i<5; i++){
         for(var j=0; j<6; j++){
           let targetRate = weaponInfo[weapons[i]][j].rate * shopRate * shopLimitRate;
@@ -311,6 +363,19 @@ export default {
           item.index,
           !this.resultItems.shopLimitStage[item.key][item.index]
         );
+      }
+    },
+    setBattleDays: function(item){
+      if(item.isAdd){
+        // 重複されないように大会を追加
+        this.battleDays.push(Number(item.day));
+        this.battleDays = Array.from(new Set(this.battleDays)).sort(
+            function(a,b){
+                return (a < b ? -1 : 1);
+        });
+      }else{
+        let tmpList = this.battleDays.filter(n => n !== item.day);
+        this.battleDays = tmpList;
       }
     },
 
