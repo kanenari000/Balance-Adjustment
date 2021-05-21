@@ -17,7 +17,7 @@
             >
               マップ生成
             </v-btn>
-            <v-btn color="green">
+            <v-btn color="green" @click="downloadCsv">
               実行結果出力
             </v-btn>
           </v-card>
@@ -149,13 +149,11 @@ import {Status} from '~/modules/config/common/status.js';
 import {ConfigItems} from '~/modules/config/common/configItems.js';
 import {ResultSet} from '~/modules/play/resultSet.js';
 import BattleTab from '../components/play/BattleTab.vue';
-import VueJsonToCSV from "vue-json-to-csv"
 export default {
   components: {
     PlayMap,
     ResultTabs,
     BattleTab,
-    VueJsonToCSV,
   },
   data(){
     return{
@@ -173,16 +171,21 @@ export default {
       resultItems: new ResultSet(),
       battleDays: [],
       isBattle: false,
+      csvData: [],
     }
   },
   props: {
     childcomboId: Number,
   },
   methods:{
-    passedDays: function(playId){
-      this.comboId = playId;
+    passedDays: function(item){
+      
+      this.comboId = item.playId;
       this.nowDay += this.diceResult;
       this.daysLeft -= this.diceResult;
+      // CSV出力用の文字列を生成
+      let csvRowStr = this.nowDay + "," + this.diceResult + "," + item.csvStr + this.myMoney + "," + this.charaStatus.toCsvStr() + this.resultItems.toCsvStr();
+      this.csvData.push(csvRowStr);
       this.diceResult = 0;
       this.isNextTurn = true;
       // 大会フラグが立っている場合はフラグを下す
@@ -254,6 +257,11 @@ export default {
       this.myMoney = 0;
       this.resultItems.resetResultSet();
       this.charaStatus.resetCharaStatus();
+      this.csvData = [];
+      this.battleDays = [];
+      this.isBattle = false;
+      this.isNextTurn = false;
+      this.comboId = 100;
     },
     setCharaStatus: function(charaStatus){
       this.charaStatus.addCharaStatus(
@@ -383,7 +391,17 @@ export default {
         this.battleDays = tmpList;
       }
     },
-
+    downloadCsv: function(){
+      let csv = "\ufeff" + "到達日,出目,選択武器種,選択ランク,製造種別,マス区分,マス倍率,所持金,攻撃力,命中率,防御力,賢さ,先制,スピード," + this.resultItems.toCsvHeader() + "\n";
+      this.csvData.forEach(element => {
+        csv += element + "\n"
+      });
+      let blob = new Blob([csv], { type: 'text/csv' });
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = 'Result.csv';
+      link.click();
+    },
 
   },
   mounted(){

@@ -151,12 +151,14 @@ import {ResultSet} from '~/modules/play/resultSet.js'
         }else{
           this.resultItems.trainingSelect[this.weaponName]++;
         }
+        let makeType = makeFlag ? "量産,": "一品,";
+        let csvStr = this.weaponName + "," + this.selectRank + "," + makeType +  selectEvnt + "," + this.mapList[this.nowPoint].rate + ",";
 
         setTimeout(() => {
           // 親の関数を呼び出し
           this.$emit('setCharaStatus', addStatus);
           this.$emit('setResult', this.resultItems);
-          this.$emit('passedDays', this.playId);
+          this.$emit('passedDays', {"playId": this.playId, "csvStr": csvStr});
         }, 10);        
       },
       manageStatus: function(){

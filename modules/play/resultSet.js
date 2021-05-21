@@ -37,15 +37,10 @@ export class ResultSet{
             "打撃": [0, 0, 0, 0, 0, 0]
         };
         this.materialSet = {
-            "金属": [100, 100, 100],
-            "木材": [100, 100, 100],
-            "皮革": [100, 100, 100]
+            "金属": [0, 0, 0],
+            "木材": [0, 0, 0],
+            "皮革": [0, 0, 0]
         };
-        // this.materialSet = {
-        //     "金属": [0, 0, 0],
-        //     "木材": [0, 0, 0],
-        //     "皮革": [0, 0, 0]
-        // };
         this.shopWeaponSet = {
             "刀剣": [0, 0, 0, 0, 0, 0],
             "長柄": [0, 0, 0, 0, 0, 0],
@@ -93,6 +88,73 @@ export class ResultSet{
             "射撃": [0, 0, 0, 0, 0, 0],
             "打撃": [0, 0, 0, 0, 0, 0]
         };
+    }
+    // CSV用の文字列に変換して返却する
+    toCsvStr(){
+        let result = "";
+        let weaponName = ["刀剣", "長柄", "魔法", "射撃", "打撃"];
+        let materialName = ["金属", "木材", "皮革"];
+        // 武器所持数
+        for(let i=0; i<5; i++){
+            for(let j=0; j<6; j++){
+                result += String(this.weaponSet[weaponName[i]][j]) + ",";
+            }
+        }
+        // 素材所持数
+        for(let i=0; i<3; i++){
+            for(let j=0; j<3; j++){
+                result += String(this.materialSet[materialName[i]][j]) + ",";
+            }
+        }
+        // 陳列武器数
+        for(let i=0; i<5; i++){
+            for(let j=0; j<6; j++){
+                result += String(this.shopWeaponSet[weaponName[i]][j]) + ",";
+            }
+        }
+        // 店強化段階
+        result += String(this.shopRateStage["空調"]) + "," + String(this.shopRateStage["清掃用具"]) + ",";
+        result += String(this.shopValueStage["一品物陳列棚"]) + "," + String(this.shopValueStage["置物"]) + ",";
+        for(let i=0; i<4; i++){
+            result += String(this.shopLimitStage["広告"][i]) + ",";
+        }
+        for(let i=0; i<4; i++){
+            result += String(this.shopLimitStage["イベントスペース"][i]) + ",";
+        }
+        return result;
+    }
+    toCsvHeader(){
+        let result = "";
+        let weaponName = ["刀剣", "長柄", "魔法", "射撃", "打撃"];
+        let materialName = ["金属", "木材", "皮革"];
+        // 武器所持数
+        for(let i=0; i<5; i++){
+            for(let j=0; j<6; j++){
+                result += "所持数_" + weaponName[i] + "Lv" + j + ",";
+            }
+        }
+        // 素材所持数
+        for(let i=0; i<3; i++){
+            for(let j=0; j<3; j++){
+                result += "所持数_" + materialName[i] + "Lv" + [j] + ",";
+            }
+        }
+        // 陳列武器数
+        for(let i=0; i<5; i++){
+            for(let j=0; j<6; j++){
+                result += "陳列数_" + weaponName[i] + "Lv" + [j] + ",";
+            }
+        }
+        // 店強化段階
+        result += "空調Lv" + "," + "清掃用具Lv" + ",";
+        result += "一品物陳列棚Lv" + "," + "置物Lv" + ",";
+        for(let i=0; i<4; i++){
+            result += "広告Lv" + i +  ",";
+        }
+        for(let i=0; i<4; i++){
+            result += "イベントスペースLv"+ i + ",";
+        }
+        return result;
     }
 
 

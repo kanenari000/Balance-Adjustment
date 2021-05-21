@@ -44,5 +44,9 @@ export class Status{
         this.speed = 1;
     }
 
+    toCsvStr(){
+        return this.strength + "," + this.dexterity + "," + this.defense + "," + this.intelligence + "," + this.preemption + "," + this.speed + ",";
+    }
+
 
 }
