@@ -1,67 +1,56 @@
 <template>
     <v-row >
-        <v-col>
-            <weapon-status ref="Weapon1" weponName="刀剣" saveKey="weapon-status1" />
-        </v-col>
-        <v-col>
-            <weapon-status ref="Weapon2" weponName="長柄" saveKey="weapon-status2" />
-        </v-col>
-        <v-col>
-            <weapon-status ref="Weapon3" weponName="魔法" saveKey="weapon-status3" />
-        </v-col>
-        <v-col>
-            <weapon-status ref="Weapon4" weponName="射撃" saveKey="weapon-status4" />
-        </v-col>
-        <v-col>
-            <weapon-status ref="Weapon5" weponName="格闘" saveKey="weapon-status5" />
-        </v-col>
-        <v-col>
-            <v-btn
-                depressed
-                color="primary"
-                v-on:click="saveWeaponData"
-            >
-                Save
-            </v-btn>
-            <v-btn
-                depressed
-                color="primary"
-                v-on:click="loadWeaponData"
-            >
-                Load
-            </v-btn>
+        <v-col v-for="weapon in weaponNames" :key="weapon">
+            <v-card>
+                <v-card-title>{{weapon}}</v-card-title>
+                <v-card-actions>
+                    <v-col>
+                        基礎値
+                        <status-set :status.sync="cWeaponStatus[weapon]" />
+                    </v-col>
+                    <v-col>
+                        補正値
+                        <status-set :status.sync="cStatusCorrection[weapon]" />
+                    </v-col>
+                </v-card-actions>
+            </v-card>
         </v-col>
     </v-row>
 </template>
 
 <script>
-import WeaponStatus from '~/components/config/WeaponStatus.vue';
+import StatusSet from '~/components/config/StatusSet.vue';
 export default {
   components: {
-    WeaponStatus,
+    StatusSet,
   },
   data(){
     return{
+        weaponNames: ["刀剣", "長柄", "打撃", "射撃", "魔法"],
     }
-  },
-  props: {
-  },
-  methods:{
-      saveWeaponData: function(){
-        this.$refs.Weapon1.saveWeaponData();
-        this.$refs.Weapon2.saveWeaponData();
-        this.$refs.Weapon3.saveWeaponData();
-        this.$refs.Weapon4.saveWeaponData();
-        this.$refs.Weapon5.saveWeaponData();
-      },
-      loadWeaponData: function(){
-        this.$refs.Weapon1.loadWeaponData();
-        this.$refs.Weapon2.loadWeaponData();
-        this.$refs.Weapon3.loadWeaponData();
-        this.$refs.Weapon4.loadWeaponData();
-        this.$refs.Weapon5.loadWeaponData();
-      },
+    },
+    props: {
+        weaponStatus: Object,
+        statusCorrection: Object,
+    },
+    computed: {
+        cWeaponStatus: {
+            get(){
+                return this.weaponStatus;
+            },
+            set(value) {
+                this.$emit('update:weaponStatus', value);
+            }
+        },
+        cStatusCorrection: {
+            get(){
+                return this.statusCorrection;
+            },
+            set(value) {
+                this.$emit('update:statusCorrection', value);
+            }
+        },
 
-  }
+    }
 }
 </script>

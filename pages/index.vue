@@ -17,6 +17,9 @@
             >
               マップ生成
             </v-btn>
+            <v-btn color="green">
+              実行結果出力
+            </v-btn>
           </v-card>
         </v-col>
       </v-row>
@@ -146,11 +149,13 @@ import {Status} from '~/modules/config/common/status.js';
 import {ConfigItems} from '~/modules/config/common/configItems.js';
 import {ResultSet} from '~/modules/play/resultSet.js';
 import BattleTab from '../components/play/BattleTab.vue';
+import VueJsonToCSV from "vue-json-to-csv"
 export default {
   components: {
     PlayMap,
     ResultTabs,
     BattleTab,
+    VueJsonToCSV,
   },
   data(){
     return{
@@ -159,7 +164,7 @@ export default {
       charaStatus: new Status(1, 1, 1, 1, 1, 1),
       comboId: 100,
       tab: null,
-      myMoney: 10000000,
+      myMoney: 0,
       isLoad: false,
       configInfo: new ConfigItems(),
       diceResult: 0,
@@ -378,6 +383,7 @@ export default {
         this.battleDays = tmpList;
       }
     },
+
 
   },
   mounted(){

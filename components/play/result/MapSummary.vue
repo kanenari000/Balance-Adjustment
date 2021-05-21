@@ -13,7 +13,6 @@
                             </v-list-item-content>
                         </v-list-item>
                         <v-divider
-                            :inset="inset"
                             :key="`second-${item}`"
                         ></v-divider>
                     </template>
@@ -33,7 +32,6 @@
                             </v-list-item-content>
                         </v-list-item>
                         <v-divider
-                            :inset="inset"
                             :key="`second-${item}`"
                         ></v-divider>
                     </template>
@@ -53,7 +51,6 @@
                             </v-list-item-content>
                         </v-list-item>
                         <v-divider
-                            :inset="inset"
                             :key="`second-${item}`"
                         ></v-divider>
                     </template>
@@ -66,7 +63,6 @@
 export default {
     data(){
         return{
-            inset: true,
             mapTypeList: ["無色", "青", "黄", "赤", "濃赤"],
             weaponNames: ["刀剣", "長柄", "打撃", "射撃", "魔法"],
         }

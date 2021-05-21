@@ -66,21 +66,24 @@
                 <v-list>
                     <template v-for="item in limitName">
                         <v-list-item :key="`first-${item}`">
-                            <v-list-item-content>
-                                <v-list-item-title>
-                                    {{item}}
-                                </v-list-item-title>
-                            </v-list-item-content>
-                            <v-list-item-action>
-                                <v-checkbox v-for="(stage, index) in shopLimitStage[item]" :key=index
-                                    :input-value="stage"
-                                    :label="String(index+1)"
-                                    @change="updateLimitRank(item, index)"
-                                ></v-checkbox>
-                            </v-list-item-action>
+                            <v-col>
+                                <v-row>
+                                    <v-col>
+                                        {{item}}
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col v-for="(stage, index) in shopLimitStage[item]" :key="index" >
+                                        <v-checkbox
+                                            :input-value="stage"
+                                            :label="String(index+1)"
+                                            @change="updateLimitRank(item, index)"
+                                        ></v-checkbox>
+                                    </v-col>
+                                </v-row>
+                            </v-col>
                         </v-list-item>
                         <v-divider
-                            :inset="inset"
                             :key="`second-${item}`"
                         ></v-divider>
                     </template>
