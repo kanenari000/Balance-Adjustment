@@ -412,6 +412,8 @@ export default {
     if (this.configInfo == null){
         this.configInfo = new ConfigItems();
     }
+    // 素材初期値をセット
+    this.resultItems.materialSet = this.configInfo.initMaterialSet;
 
   },
 

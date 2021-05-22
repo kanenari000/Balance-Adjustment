@@ -24,6 +24,7 @@
       <v-tab>店強化</v-tab>
       <v-tab>武器売却</v-tab>
       <v-tab>武器レシピ</v-tab>
+      <v-tab>初期所持素材</v-tab>
       <v-tab>その他</v-tab>
     </v-tabs>
 
@@ -55,6 +56,9 @@
       <v-tab-item eager>
         <weapon-recipe :weaponsInfoList.sync="configInfo.weaponsInfoList" />
       </v-tab-item>
+      <v-tab-item>
+        <init-material :initMaterialSet="configInfo.initMaterialSet" />
+      </v-tab-item>
       <v-tab-item eager>
         <ather-setting
           :status.sync="configInfo.statusCorrection"
@@ -78,6 +82,7 @@ import SearchMaterialSet from '../components/config/SearchMaterialSet.vue';
 import ShopUpdate from '../components/config/ShopUpdate.vue';
 import WeaponInfo from '../components/config/WeaponInfo.vue';
 import WeaponRecipe from '../components/config/WeaponRecipe.vue';
+import InitMaterial from '../components/config/InitMaterial.vue';
 export default {
   components: {
     Weapons,
@@ -86,6 +91,7 @@ export default {
     ShopUpdate,
     WeaponInfo,
     WeaponRecipe,
+    InitMaterial,
   },
   data(){
     return{

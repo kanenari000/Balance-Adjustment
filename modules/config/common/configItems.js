@@ -23,6 +23,9 @@ export class ConfigItems{
     weaponsInfoList;
     // 一品物製造段階
     weaponProgress;
+    // 所持素材初期値
+    initMaterialSet;
+
 
     // コンストラクタ
     constructor(){
@@ -100,6 +103,12 @@ export class ConfigItems{
             ]
         };
         this.weaponProgress = 10;
+        
+        this.initMaterialSet = {
+            "金属": [0, 0, 0],
+            "木材": [0, 0, 0],
+            "皮革": [0, 0, 0]
+        };
     }
 
 
