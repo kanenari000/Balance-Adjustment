@@ -10,15 +10,14 @@
                         <v-expansion-panel-content>
                             <v-row v-for="material in materialName" :key="material">
                                 <v-col>
-                                    <v-row><v-col>【{{material}}】</v-col></v-row>
+                                    <v-row><v-col>{{material}}</v-col></v-row>
                                     <v-row>
                                         <v-col v-for="mRank in [0, 1, 2]" :key="mRank">
-                                            <v-text-field
-                                                v-model="cWeaponsInfoList[item][wRank].recipe[material][mRank]"
-                                                :label="`ランク${mRank}`"
-                                            />
+                                            <v-icon>mdi-numeric-{{mRank}}-box-outline</v-icon>:
+                                            {{weaponsInfoList[item][wRank].recipe[material][mRank]}}
                                         </v-col>
                                     </v-row>
+                                    <v-divider></v-divider>
                                 </v-col>
                             </v-row>
                         </v-expansion-panel-content>
@@ -41,15 +40,6 @@ export default {
     props: {
         weaponsInfoList: Object,
     },
-    computed: {
-        cWeaponsInfoList: {
-            get(){
-                return this.weaponsInfoList;
-            },
-            set(value) {
-                this.$emit('update:weaponsInfoList', value);
-            }
-        },
-    }
+
 }
 </script>

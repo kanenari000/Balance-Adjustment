@@ -14,6 +14,7 @@
             <v-tab> 店強化 </v-tab>
             <v-tab> 大会予約 </v-tab>
             <v-tab> マス目サマリ </v-tab>
+            <v-tab> 武器レシピ </v-tab>
         </v-tabs>
         <v-tabs-items v-model="resultTab">
             <v-tab-item eager>
@@ -79,6 +80,9 @@
                     :searchSelect="resultItems.searchSelect"
                 />
             </v-tab-item>
+            <v-tab-item>
+                <view-weapon-recipe :weaponsInfoList="configInfo.weaponsInfoList" />
+            </v-tab-item>
         </v-tabs-items>
     </v-col>
 </template>
@@ -93,6 +97,7 @@ import ShopUpdate from './result/ShopUpdate.vue';
 import MapSummary from './result/MapSummary.vue';
 import WeaponProgress from './result/WeaponProgress.vue';
 import Calendars from './result/Calendars.vue';
+import ViewWeaponRecipe from './result/ViewWeaponRecipe.vue';
 export default {
     components: {
         StatusResult,
@@ -102,11 +107,11 @@ export default {
         MapSummary,
         WeaponProgress,
         Calendars,
+        ViewWeaponRecipe,
     },
     data(){
         return{
             resultTab: null,
-            // resultItems: new ResultSet(),
             weaponNames: ["刀剣", "長柄", "打撃", "射撃", "魔法"],
             materialNames: ["金属", "木材", "皮革"],
         }
