@@ -260,7 +260,6 @@ export default {
       this.csvData = [];
       this.battleDays = [];
       this.isBattle = false;
-      this.isNextTurn = false;
       this.comboId = 100;
     },
     setCharaStatus: function(charaStatus){
