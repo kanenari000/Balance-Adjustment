@@ -218,8 +218,10 @@ export default {
       this.diceResult = Math.floor(Math.random() * Math.floor(6)) + 1;
       // 大会予約日に合わせてダイス上限を設定
       if(!this.isBattle && (this.battleDays.length != 0)){
-        let battleLeft = this.battleDays[0] - this.nowDay;
-        this.diceResult = (this.diceResult >= battleLeft) ? battleLeft-1:  this.diceResult;
+        if(this.battleDays[0] > this.nowDay){
+          let battleLeft = this.battleDays[0] - this.nowDay;
+          this.diceResult = (this.diceResult >= battleLeft) ? battleLeft-1:  this.diceResult;
+        }
       }
       // 残り日数がマイナスにならないように調整
       if(this.daysLeft-this.diceResult < 0){
