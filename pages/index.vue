@@ -256,7 +256,7 @@ export default {
 
       this.nowDay = 0;
       this.daysLeft = 280;
-      this.myMoney = 0;
+      this.myMoney = 100000;
       this.resultItems.resetResultSet();
       this.charaStatus.resetCharaStatus();
       this.csvData = [];
@@ -332,6 +332,8 @@ export default {
           }
         }
       }
+      console.log(shopValue);
+      console.log(shopLimitValue);
       for(var i=0; i<5; i++){
         for(var j=0; j<6; j++){
           let targetRate = weaponInfo[weapons[i]][j].rate * shopRate * shopLimitRate;

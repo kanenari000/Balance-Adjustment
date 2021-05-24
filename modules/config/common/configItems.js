@@ -36,27 +36,27 @@ export class ConfigItems{
         this.mapRateList = [0.0, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 2.0];
         this.shopInfoList = {
             "空調": [
-                new ShopInfo(0.1, 1000), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
+                new ShopInfo(0.0, 0), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
                 new ShopInfo(0.7, 15000), new ShopInfo(1.0, 20000)
             ],
             "清掃用具": [
-                new ShopInfo(0.1, 1000), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
+                new ShopInfo(0.0, 0), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
                 new ShopInfo(0.7, 15000), new ShopInfo(1.0, 20000)
             ],
             "一品物陳列棚": [
-                new ShopInfo(0.1, 1000), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
+                new ShopInfo(0.0, 0), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
                 new ShopInfo(0.7, 15000), new ShopInfo(1.0, 20000)
             ],
             "置物": [
-                new ShopInfo(0.1, 1000), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
+                new ShopInfo(0.0, 0), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
                 new ShopInfo(0.7, 15000), new ShopInfo(1.0, 20000)
             ],
             "広告": [
-                new ShopInfo(0.1, 1000), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
+                new ShopInfo(0.0, 0), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
                 new ShopInfo(0.7, 15000), new ShopInfo(1.0, 20000)
             ],
             "イベントスペース": [
-                new ShopInfo(0.1, 1000), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
+                new ShopInfo(0.0, 0), new ShopInfo(0.2, 3000), new ShopInfo(0.4, 7000),
                 new ShopInfo(0.7, 15000),new ShopInfo(1.0, 20000)
             ],
         };

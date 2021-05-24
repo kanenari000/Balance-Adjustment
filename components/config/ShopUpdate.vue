@@ -9,7 +9,7 @@
                         <v-form v-for="index in [0, 1, 2, 3, 4]" :key="index">
                             <v-text-field
                                 v-model="cShopInfoList[item][index].value"
-                                :label="`ランク${index+1}`"
+                                :label="`ランク${index}`"
                             />
                         </v-form>
                     </v-col>
@@ -18,7 +18,7 @@
                         <v-form v-for="index in [0, 1, 2, 3, 4]" :key="index">
                             <v-text-field
                                 v-model="cShopInfoList[item][index].price"
-                                :label="`ランク${index+1}`"
+                                :label="`ランク${index}`"
                             />
                         </v-form>
                     </v-col>
