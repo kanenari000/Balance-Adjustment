@@ -309,35 +309,34 @@ export default {
       let shopValueStage = this.resultItems.shopValueStage;
       let shopWeapon = this.resultItems.shopWeaponSet;
       let weapons = ["刀剣", "長柄", "打撃", "射撃", "魔法"];
-      let shopRate = 1 + shopInfo["空調"][shopRateStage["空調"]].value + shopInfo["清掃用具"][shopRateStage["清掃用具"]].value;
-      let shopValue = 1 + shopInfo["一品物陳列棚"][shopValueStage["一品物陳列棚"]].value + shopInfo["置物"][shopValueStage["置物"]].value;
+      let shopRate = 1 + Number(shopInfo["空調"][shopRateStage["空調"]].value) + Number(shopInfo["清掃用具"][shopRateStage["清掃用具"]].value);
+      let shopValue = 1 + Number(shopInfo["一品物陳列棚"][shopValueStage["一品物陳列棚"]].value) + Number(shopInfo["置物"][shopValueStage["置物"]].value);
       let shopLimitRate = 1;
       let shopLimitValue = 1;
       // 期間強化を計算
       for(var i=0; i<4; i++){
         if(this.resultItems.shopLimitStage["広告"][i]){
-          if(this.myMoney - this.configInfo.shopInfoList["広告"][i].price >= 0){
-            this.myMoney -= this.configInfo.shopInfoList["広告"][i].price;
-            shopLimitRate += shopInfo["広告"][i].value;
+          if(this.myMoney - Number(this.configInfo.shopInfoList["広告"][i].price) >= 0){
+            this.myMoney -= Number(this.configInfo.shopInfoList["広告"][i].price);
+            shopLimitRate += Number(shopInfo["広告"][i].value);
           }else{
             this.$set(this.resultItems.shopLimitStage["広告"], [i], false);
           }
         }
         if(this.resultItems.shopLimitStage["イベントスペース"][i]){
-          if(this.myMoney - this.configInfo.shopInfoList["イベントスペース"][i].price >= 0){
-            this.myMoney -= this.configInfo.shopInfoList["イベントスペース"][i].price;
-            shopLimitRate += shopInfo["イベントスペース"][i].value;
+          if(this.myMoney - Number(this.configInfo.shopInfoList["イベントスペース"][i].price) >= 0){
+            this.myMoney -= Number(this.configInfo.shopInfoList["イベントスペース"][i].price);
+            shopLimitRate += Number(shopInfo["イベントスペース"][i].value);
           }else{
             this.$set(this.resultItems.shopLimitStage["イベントスペース"], [i], false);
           }
         }
       }
-      console.log(shopValue);
-      console.log(shopLimitValue);
+
       for(var i=0; i<5; i++){
         for(var j=0; j<6; j++){
-          let targetRate = weaponInfo[weapons[i]][j].rate * shopRate * shopLimitRate;
-          let targetValue = Math.floor(weaponInfo[weapons[i]][j].value * shopValue * shopLimitValue);
+          let targetRate = Number(weaponInfo[weapons[i]][j].rate) * shopRate * shopLimitRate;
+          let targetValue = Math.floor(Number(weaponInfo[weapons[i]][j].value) * shopValue * shopLimitValue);
           for(var k=0; k<shopWeapon[weapons[i]][j]; k++){
             if(this.judgeShop(targetRate)){
               // 売れた場合の処理を実行
@@ -364,13 +363,13 @@ export default {
     },
     updateShop: function(item){
       // 強化資金が足りているか判定
-      if(this.myMoney - this.configInfo.shopInfoList[item.key][item.index].price >= 0){
+      if(this.myMoney - Number(this.configInfo.shopInfoList[item.key][item.index].price) >= 0){
         if((item.key == "空調") || (item.key == "清掃用具")){
           this.resultItems.shopRateStage[item.key]++;
-          this.myMoney -= this.configInfo.shopInfoList[item.key][item.index].price;
+          this.myMoney -= Number(this.configInfo.shopInfoList[item.key][item.index].price);
         }else if((item.key == "一品物陳列棚") || (item.key == "置物")){
           this.resultItems.shopValueStage[item.key]++;
-          this.myMoney -= this.configInfo.shopInfoList[item.key][item.index].price;
+          this.myMoney -= Number(this.configInfo.shopInfoList[item.key][item.index].price);
         }
       }
       if((item.key == "広告") || (item.key == "イベントスペース")){
