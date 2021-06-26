@@ -96,8 +96,10 @@
             <battle-config-tab
                 :statusList="statusList"
                 :weaponList="weaponList"
+                :battleConf="battleConf"
                 @editCharacter="editCharacter"
                 @editWeapon="editWeapon"
+                @editBaseConfig="editBaseConfig"
             />
         </v-row>
     </div>
@@ -369,6 +371,12 @@ export default {
             let saveJson = JSON.stringify(this.weaponList);
             localStorage.setItem("weapon-list", saveJson);
         },
+        editBaseConfig: function(editInfo){
+            this.battleConf = editInfo;
+            // ローカルストレージに保存
+            let saveJson = JSON.stringify(this.battleConf);
+            localStorage.setItem("battle-conf", saveJson);
+        }
     },
     mounted(){
         // ローカルストレージから設定情報を読み取る
@@ -396,6 +404,11 @@ export default {
                 "射撃": {"デフォルト": new WeaponConfig()},
                 "魔法": {"デフォルト": new WeaponConfig()},
             };
+        }
+
+        this.battleConf = JSON.parse(localStorage.getItem("battle-conf"));
+        if(this.battleConf == null) {
+            this.battleConf = new BattleBaseConfig();
         }
 
     },

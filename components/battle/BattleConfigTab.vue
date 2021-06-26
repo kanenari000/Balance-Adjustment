@@ -22,7 +22,10 @@
                 />
             </v-tab-item>
             <v-tab-item>
-                <battle-config-base />
+                <battle-config-base
+                    :battleConf="battleConf"
+                    @editBaseConfig="editBaseConfig"
+                />
             </v-tab-item>
         </v-tabs-items>
     </v-col>
@@ -46,6 +49,7 @@ export default {
     props: {
         statusList: Object,
         weaponList: Object,
+        battleConf: Object,
     },
     methods:{
         editCharacter: function(editInfo){
@@ -54,6 +58,9 @@ export default {
         editWeapon: function(editInfo){
             this.$emit("editWeapon", editInfo);
         },
+        editBaseConfig: function(editInfo){
+            this.$emit("editBaseConfig", editInfo);
+        }
 
     },
     mounted(){
