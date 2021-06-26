@@ -180,15 +180,14 @@ export default {
             // 状態を定義
             // グローバル情報
             let tarn = 0;
-            console.log(myStatus);
 
             // 自分
             let myLeftHp = myStatus["MAX-HP"];
             let myActionValue = 0;
             let myMysteryValue = 0;
-            let myMystery = this.battleConf.mystery[this.selectMyWeaponType] + myWeapon.mystery;
+            let myMystery = Number(this.battleConf.mystery[this.selectMyWeaponType]) + myWeapon.mystery;
             let mySpd = 50;
-            let myCH = myStatus["DEX"] / enemyStatus["INT"] * (myWeapon.ch + this.battleConf.ch);
+            let myCH = myStatus["DEX"] / enemyStatus["INT"] * (myWeapon.ch + Number(this.battleConf.ch));
             let myMysRise = Math.floor(myStatus["DEX"] / enemyStatus["DEX"] * (myWeapon.mysteryRise + 10));
             let myPreSpd = 50;
 
@@ -196,9 +195,9 @@ export default {
             let enemyLeftHp = enemyStatus["MAX-HP"];
             let enemyActionValue = 0;
             let enemyMysteryValue = 0;
-            let enemyMystery = this.battleConf.mystery[this.selectMyWeaponType] + enemyWeapon.mystery;
+            let enemyMystery = Number(this.battleConf.mystery[this.selectMyWeaponType]) + enemyWeapon.mystery;
             let enemySpd = 50;
-            let enemyCH = enemyStatus["DEX"] / myStatus["INT"] * (enemyWeapon.ch + this.battleConf.ch);
+            let enemyCH = enemyStatus["DEX"] / myStatus["INT"] * (enemyWeapon.ch + Number(this.battleConf.ch));
             let enemyMysRise = Math.floor(enemyStatus["DEX"] / myStatus["DEX"] * (enemyWeapon.mysteryRise + 10));
             let enemyPreSpd = 50;
 
@@ -280,17 +279,17 @@ export default {
             }
 
             // ダメージの乱数値
-            let dmgRnd = Math.floor(Math.random() * this.battleConf.attackRand * 100) / 100 * str
-
+            let dmgRnd = Math.floor(Math.random() * Number(this.battleConf.attackRand) * 100) / 100 * str
+            
             // ダメージを計算
             let dmg = (str + pre > def) ? str + pre - def: 0; 
-            dmg = (dmg + dmgRnd + this.battleConf.attack) * weapon * chDmg;
+            dmg = (dmg + dmgRnd + Number(this.battleConf.attack)) * weapon * chDmg;
 
             return Math.floor(dmg);
         },
         calcMystery: function(str, mystery, def){
             // 奥義ダメージの計算
-            let dmgRnd = Math.floor(Math.random() * this.battleConf.mysteryRand * 100) / 100 * str;
+            let dmgRnd = Math.floor(Math.random() * Number(this.battleConf.mysteryRand) * 100) / 100 * str;
             
             return Math.floor((str + dmgRnd) * mystery   - def / 5);
         },
@@ -325,7 +324,6 @@ export default {
         editCharacter: function(editInfo){
             // CRUDに合わせて処理を分岐
             if((editInfo["crud"] == "cu")){
-                console.log(editInfo["value"]);
                 // 新規・更新
                 this.$set(this.statusList, editInfo["key"], editInfo["value"]);
             }else if(editInfo["crud"]== "d"){
@@ -350,7 +348,6 @@ export default {
         editWeapon: function(editInfo){
             // CRUDに合わせて処理を分岐
             if((editInfo["crud"] == "cu")){
-                console.log(editInfo["value"]);
                 // 新規・更新
                 this.$set(this.weaponList[editInfo["weapon"]], editInfo["key"], editInfo["value"]);
             }else if(editInfo["crud"]== "d"){
