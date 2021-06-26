@@ -292,7 +292,7 @@ export default {
             // 奥義ダメージの計算
             let dmgRnd = Math.floor(Math.random() * this.battleConf.mysteryRand * 100) / 100 * str;
             
-            return Math.floor(str * mystery * dmgRnd - def / 5);
+            return Math.floor((str + dmgRnd) * mystery   - def / 5);
         },
         excuteAction: function(actionValue, spd, mysteryValue, myStr, enemyDef, mystery, mysteryRise, ch, weapon, pre, preFlg, leftHp, myFlg){
             actionValue += spd;
