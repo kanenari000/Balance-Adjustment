@@ -239,7 +239,7 @@ export default {
                 };
                 if (this.editedIndex > -1) {
                     // 更新時の処理
-                    Object.assign(this.weaponList[this.editedIndex], editItem)
+                    Object.assign(this.weapons[this.editedIndex], editItem);
                 }else{
                     // 新規作成時の処理
                     this.weapons.push(editItem);
@@ -261,16 +261,26 @@ export default {
             // 更新内容をセット
             this.editedStatusName = item["Name"];
             for(let i=0; i<this.statusKeys.length; i++){
-                this.editedStatus.status[this.statusKeys[i]] = item[this.statusKeys[i]];
+                this.editedStatus.status.status[this.statusKeys[i]] = item[this.statusKeys[i]];
             }
+            this.editedStatus.ch = item["CH"];
+            this.editedStatus.mystery = item["Mystery"];
+            this.editedStatus.mysteryRise = item["MysteryRise"];
+            this.editedStatus.attack = item["Attack"];
+
             this.dialog = true;
         },
         copyItem: function(item){
             // 更新内容をセット
             this.editedStatusName = item["Name"];
             for(let i=0; i<this.statusKeys.length; i++){
-                this.editedStatus.status[this.statusKeys[i]] = item[this.statusKeys[i]];
+                this.editedStatus.status.status[this.statusKeys[i]] = item[this.statusKeys[i]];
             }
+            this.editedStatus.ch = item["CH"];
+            this.editedStatus.mystery = item["Mystery"];
+            this.editedStatus.mysteryRise = item["MysteryRise"];
+            this.editedStatus.attack = item["Attack"];
+
             this.dialog = true;
         },
         deleteItem: function(item) {
