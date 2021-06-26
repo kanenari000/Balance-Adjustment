@@ -16,7 +16,10 @@
                 />
             </v-tab-item>
             <v-tab-item>
-                <battle-weapon-status />
+                <battle-weapon-status
+                    :weaponList="weaponList"
+                    @editWeapon="editWeapon"
+                />
             </v-tab-item>
             <v-tab-item>
                 <battle-config-base />
@@ -42,10 +45,14 @@ export default {
     },
     props: {
         statusList: Object,
+        weaponList: Object,
     },
     methods:{
         editCharacter: function(editInfo){
             this.$emit("editCharacter", editInfo);
+        },
+        editWeapon: function(editInfo){
+            this.$emit("editWeapon", editInfo);
         },
 
     },

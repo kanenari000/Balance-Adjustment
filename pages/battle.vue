@@ -93,7 +93,12 @@
             </v-col>
         </v-row>
         <v-row dense>
-            <battle-config-tab :statusList="statusList" @editCharacter="editCharacter"/>
+            <battle-config-tab
+                :statusList="statusList"
+                :weaponList="weaponList"
+                @editCharacter="editCharacter"
+                @editWeapon="editWeapon"
+            />
         </v-row>
     </div>
 </template>
@@ -326,7 +331,7 @@ export default {
                 // 削除対象が選択されている場合は別のものを選択する
                 let keyList = this.statusList;
                 delete keyList[editInfo["key"]];
-                let firstKey = Object.keys(this.statusList)[0];
+                let firstKey = Object.keys(keyList)[0];
                 if(this.selectMy == editInfo["key"]){
                     this.selectMy = firstKey;
                 }
@@ -340,11 +345,36 @@ export default {
             let saveJson = JSON.stringify(this.statusList);
             localStorage.setItem("status-list", saveJson);
         },
-
+        editWeapon: function(editInfo){
+            // CRUDに合わせて処理を分岐
+            if((editInfo["crud"] == "cu")){
+                console.log(editInfo["value"]);
+                // 新規・更新
+                this.$set(this.weaponList[editInfo["weapon"]], editInfo["key"], editInfo["value"]);
+            }else if(editInfo["crud"]== "d"){
+                // 削除
+                // 削除対象が選択されている場合は選択を解除する
+                if((this.selectMyWeaponType == editInfo["weapon"])
+                    && (this.selectEnemyWeapon == editInfo["key"])){
+                    this.selectMyWeapon = null;
+                }
+                if((this.selectEnemyWeaponType == editInfo["weapon"])
+                    && (this.selectEnemyWeapon == editInfo["key"])){
+                    this.selectEnemyWeapon = null;
+                }
+                // 削除する
+                delete this.weaponList[editInfo["weapon"]][editInfo["key"]];
+            }
+            // ローカルストレージに保存
+            let saveJson = JSON.stringify(this.weaponList);
+            localStorage.setItem("weapon-list", saveJson);
+        },
     },
     mounted(){
         // ローカルストレージから設定情報を読み取る
         // ローカルストレージにない場合はデフォルトの設定として新規インスタンスを生成
+        
+        // キャラクターステータス
         this.statusList = JSON.parse(localStorage.getItem("status-list"));
         if (this.statusList == null){
             this.statusList = {
@@ -355,6 +385,18 @@ export default {
         let firstKey = Object.keys(this.statusList)[0];
         this.selectMy = firstKey;
         this.selectEnemy = firstKey;
+
+        // 武器ステータス
+        this.weaponList = JSON.parse(localStorage.getItem("weapon-list"));
+        if(this.weaponList == null) {
+            this.weaponList = {
+                "刀剣": {"デフォルト": new WeaponConfig()},
+                "長柄": {"デフォルト": new WeaponConfig()},
+                "打撃": {"デフォルト": new WeaponConfig()},
+                "射撃": {"デフォルト": new WeaponConfig()},
+                "魔法": {"デフォルト": new WeaponConfig()},
+            };
+        }
 
     },
 }

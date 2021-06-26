@@ -103,10 +103,6 @@ export default {
   },
   methods:{
     saveConfig: function(){
-      // フォームに入力されたデータは文字列なので
-
-
-
       // コンフィグ情報をローカルストレージに保存
       let saveJson = JSON.stringify(this.configInfo);
       localStorage.setItem("config-info", saveJson);
