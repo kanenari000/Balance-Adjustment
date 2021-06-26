@@ -25,6 +25,8 @@ export class ConfigItems{
     weaponProgress;
     // 所持素材初期値
     initMaterialSet;
+    // 訓練施設強化設定
+    trainingUpdate;
 
 
     // コンストラクタ
@@ -109,6 +111,33 @@ export class ConfigItems{
             "木材": [0, 0, 0],
             "皮革": [0, 0, 0]
         };
+
+        this.trainingUpdate ={
+            "STR": [
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000),
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000)
+            ],
+            "DEX": [
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000),
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000)
+            ],
+            "DEF": [
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000),
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000)
+            ],
+            "INT": [
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000),
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000)
+            ],
+            "PRE": [
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000),
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000)
+            ],
+            "SPD": [
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000),
+                new ShopInfo(0.0, 1000), new ShopInfo(0.0, 1000)
+            ]
+        }
     }
 
 

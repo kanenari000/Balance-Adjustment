@@ -21,6 +21,8 @@ export class ResultSet{
     searchSelect;
     // 一品物の製造状況
     weaponProgress;
+    // 訓練施設の強化段階
+    trainingUpdateStage;
 
     // コンストラクタ
     constructor(){
@@ -88,6 +90,15 @@ export class ResultSet{
             "射撃": [0, 0, 0, 0, 0, 0],
             "打撃": [0, 0, 0, 0, 0, 0]
         };
+
+        this.trainingUpdateStage = {
+            "STR": 0,
+            "DEX": 0,
+            "DEF": 0,
+            "INT": 0,
+            "PRE": 0,
+            "SPD": 0,
+        }
     }
     // CSV用の文字列に変換して返却する
     toCsvStr(){
@@ -120,6 +131,11 @@ export class ResultSet{
         }
         for(let i=0; i<4; i++){
             result += String(this.shopLimitStage["イベントスペース"][i]) + ",";
+        }
+
+        let statusName = ["STR", "DEX", "DEF", "INT", "PRE", "SPD"];
+        for(let i=0; i<6; i++){
+            result += String(this.trainingUpdateStage[statusName[i]]) + ","
         }
         return result;
     }
@@ -154,6 +170,8 @@ export class ResultSet{
         for(let i=0; i<4; i++){
             result += "イベントスペースLv"+ i + ",";
         }
+        // 訓練施設強化段階
+        result += "STR強化Lv, DEX強化Lv, DEF強化Lv, INT強化Lv, PRE強化Lv, SPD強化Lv,";
         return result;
     }
 

@@ -68,6 +68,11 @@ export default {
           icon: 'mdi-cog-outline',
           title: 'Config',
           to: '/config'
+        },
+        {
+          icon: 'mdi-sword-cross',
+          title: 'Battle',
+          to: '/battle'
         }
       ],
       miniVariant: false,
