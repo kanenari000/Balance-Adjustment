@@ -188,7 +188,9 @@ export default {
             let myMystery = Number(this.battleConf.mystery[this.selectMyWeaponType]) + myWeapon.mystery;
             let mySpd = 50;
             let myCH = myStatus["DEX"] / enemyStatus["INT"] * (myWeapon.ch + Number(this.battleConf.ch));
-            let myMysRise = Math.floor(myStatus["DEX"] / enemyStatus["DEX"] * (myWeapon.mysteryRise + 10));
+            let myMysRise = this.selectMyWeaponType=="魔法" ?
+                Math.floor(myStatus["INT"] / enemyStatus["INT"] * (myWeapon.mysteryRise + 30))
+                : Math.floor(myStatus["DEX"] / enemyStatus["DEX"] * (myWeapon.mysteryRise + 10));
             let myPreSpd = 50;
 
             // 敵
@@ -198,7 +200,9 @@ export default {
             let enemyMystery = Number(this.battleConf.mystery[this.selectMyWeaponType]) + enemyWeapon.mystery;
             let enemySpd = 50;
             let enemyCH = enemyStatus["DEX"] / myStatus["INT"] * (enemyWeapon.ch + Number(this.battleConf.ch));
-            let enemyMysRise = Math.floor(enemyStatus["DEX"] / myStatus["DEX"] * (enemyWeapon.mysteryRise + 10));
+            let enemyMysRise = this.selectEnemyWeaponType=="魔法" ?
+                Math.floor(enemyStatus["INT"] / myStatus["INT"] * (enemyWeapon.mysteryRise + 30))
+                : Math.floor(enemyStatus["DEX"] / myStatus["DEX"] * (enemyWeapon.mysteryRise + 10));
             let enemyPreSpd = 50;
 
             // 行動値を計算
@@ -213,6 +217,8 @@ export default {
                 myPreSpd = Math.floor(50 * myStatus["PRE"] / enemyStatus["PRE"]);
             }
             let preFlg = true;
+            let myStr = this.selectMyWeaponType=="魔法"? myStatus["INT"]: myStatus["STR"];
+            let enemyStr = this.selectEnemyWeaponType=="魔法"? enemyStatus["INT"]: enemyStatus["STR"];
             // どちらかのHPが0になるまで無限ループ
             while(myLeftHp > 0 && enemyLeftHp > 0){
                 // どちらかが初撃を与えるまではPREで行動
@@ -220,12 +226,12 @@ export default {
                 let logMsg = "";
                 if(preFlg){                    
                     [myActionValue, myMysteryValue, enemyLeftHp, logMsg, preFlg] = this.excuteAction(
-                        myActionValue, myPreSpd, myMysteryValue, myStatus["STR"], enemyStatus["DEF"],
+                        myActionValue, myPreSpd, myMysteryValue, myStr, enemyStatus["DEF"],
                         myMystery, myMysRise, myCH, myWeapon.attack, myStatus["PRE"], preFlg, enemyLeftHp, true
                     );
                 }else{
                     [myActionValue, myMysteryValue, enemyLeftHp, logMsg, preFlg] = this.excuteAction(
-                        myActionValue, mySpd, myMysteryValue, myStatus["STR"], enemyStatus["DEF"],
+                        myActionValue, mySpd, myMysteryValue, myStr, enemyStatus["DEF"],
                         myMystery, myMysRise, myCH, myWeapon.attack, 0, preFlg, enemyLeftHp, true
                     );
                 }
@@ -240,12 +246,12 @@ export default {
                 logMsg = "";
                 if(preFlg){
                     [enemyActionValue, enemyMysteryValue, myLeftHp, logMsg, preFlg] = this.excuteAction(
-                        enemyActionValue, enemyPreSpd, enemyMysteryValue, enemyStatus["STR"], myStatus["DEF"],
+                        enemyActionValue, enemyPreSpd, enemyMysteryValue, enemyStr, myStatus["DEF"],
                         enemyMystery, enemyMysRise, enemyCH, enemyWeapon.attack, enemyStatus["PRE"], preFlg, myLeftHp, false
                     );
                 }else{
                     [enemyActionValue, enemyMysteryValue, myLeftHp, logMsg, preFlg] = this.excuteAction(
-                        enemyActionValue, enemySpd, enemyMysteryValue, enemyStatus["STR"], myStatus["DEF"],
+                        enemyActionValue, enemySpd, enemyMysteryValue, enemyStr, myStatus["DEF"],
                         enemyMystery, enemyMysRise, enemyCH, enemyWeapon.attack, 0, preFlg, myLeftHp, false
                     );
                 }
@@ -291,14 +297,16 @@ export default {
             // 奥義ダメージの計算
             let dmgRnd = Math.floor(Math.random() * Number(this.battleConf.mysteryRand) * 100) / 100 * str;
             
-            return Math.floor((str + dmgRnd) * mystery   - def / 5);
+            return Math.floor((str + dmgRnd) * mystery - def / 5);
         },
         excuteAction: function(actionValue, spd, mysteryValue, myStr, enemyDef, mystery, mysteryRise, ch, weapon, pre, preFlg, leftHp, myFlg){
             actionValue += spd;
             let logMsg = "";
             let me = myFlg ? "自分": "敵"
             let enemy = myFlg ? "敵": "自分"
-
+            let weaponType = myFlg ? this.selectMyWeaponType: this.selectEnemyWeaponType;
+            let preLogMsg = me + " の攻撃 " + enemy + " に ";
+            let sufLogMsg = " のダメージ！";
             // 行動値ゲージが100になったら攻撃行動を実施する
             if(actionValue >= 100){
                 preFlg = false;
@@ -310,10 +318,27 @@ export default {
                     dmg = this.calcMystery(myStr, mystery, enemyDef);
                     logMsg = "奥義発動！！ "
                 }else{
+                    if("魔法" == weaponType){
+                        // 魔法の場合は通常攻撃無
+                    }else if("打撃" == weaponType){
+                        // 打撃武器の場合は連続攻撃の判定を実施
+                        let commboNum = 1;
+                        for(let i=1; i>=0; i--){
+                            if(Math.random() < Number(this.battleConf.comboRate[i])){
+                                commboNum = i+2;
+                                break;
+                            }
+                        }
+                        logMsg = commboNum==1? "": String(commboNum) + "Hit！"
+                        for(let i=0; i< commboNum; i++){
+                            dmg += this.calcDamage(myStr, enemyDef, ch, weapon, pre);
+                        }
+                    }else{
+                        dmg = this.calcDamage(myStr, enemyDef, ch, weapon, pre);
+                    }
                     mysteryValue += mysteryRise;
-                    dmg = this.calcDamage(myStr, enemyDef, ch, weapon, pre);
                 }
-                logMsg += me + " の攻撃 " + enemy + " に " + String(dmg) + " のダメージ！";
+                logMsg += (0==dmg) ? "": preLogMsg + String(dmg) + sufLogMsg;
                 leftHp -= dmg;
                 if(leftHp <= 0) {
                     logMsg += " " + me + " の勝利！！"
