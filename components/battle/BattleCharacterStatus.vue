@@ -142,15 +142,17 @@ export default {
         close: function() {
             this.dialog = false
             this.$nextTick(() => {
-            this.editedItem = Object.assign({}, this.defaultItem)
-            this.editedIndex = -1
+                this.editedStatus = new BattleStatus(0, 0, 0, 0, 0, 0, 0);
+                this.editedStatusName = "";
+                this.editedIndex = -1
             })
         },
         closeDelete: function() {
             this.dialogDelete = false
             this.$nextTick(() => {
-            this.editedItem = Object.assign({}, this.defaultItem)
-            this.editedIndex = -1
+                this.editedStatus = new BattleStatus(0, 0, 0, 0, 0, 0, 0);
+                this.editedStatusName = "";
+                this.editedIndex = -1
             })
         },
         save: function(){
