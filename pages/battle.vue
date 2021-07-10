@@ -180,8 +180,8 @@ export default {
             let myWeapon = this.weaponList[this.selectMyWeaponType][this.selectMyWeapon];
             let enemyWeapon = this.weaponList[this.selectEnemyWeaponType][this.selectEnemyWeapon];
             // 数値型に修正
-            myWeapon.weaponConf2Num();
-            enemyWeapon.weaponConf2Num();
+            myWeapon = this.weaponConf2Num(myWeapon);
+            enemyWeapon = this.weaponConf2Num(enemyWeapon);
 
             // 自分と敵のステータスを取得
             let myStatus = this.sumStatus(this.statusList[this.selectMy].status, myWeapon.status.status);
@@ -422,6 +422,13 @@ export default {
             let saveJson = JSON.stringify(this.battleConf);
             localStorage.setItem("battle-conf", saveJson);
         },
+        weaponConf2Num: function(weapon){
+            weapon.ch = Number(weapon.ch);
+            weapon.mystery = Number(weapon.mystery);
+            weapon.mysteryRise = Number(weapon.mysteryRise);
+            weapon.attack = Number(weapon.attack);
+            return weapon;
+        }
     },
     mounted(){
         // ローカルストレージから設定情報を読み取る

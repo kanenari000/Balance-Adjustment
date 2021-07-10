@@ -23,13 +23,4 @@ export class WeaponConfig{
         this.bullet = null;
         this.status = new BattleStatus(10, 0, 0, 0, 0, 0, 0);
     }
-
-    // バレット・ステータス以外の属性を数値型に変換
-    weaponConf2Num(){
-        this.ch = Number(this.ch);
-        this.mystery = Number(this.mystery);
-        this.mysteryRise = Number(this.mysteryRise);
-        this.attack = Number(this.attack);
-    }
-
 }
