@@ -97,8 +97,11 @@
                 :statusList="statusList"
                 :weaponList="weaponList"
                 :battleConf="battleConf"
+                :bulletList="bulletList"
+                :condtionList="condtionList"
                 @editCharacter="editCharacter"
                 @editWeapon="editWeapon"
+                @editCondtionConfig="editCondtionConfig"
                 @editBaseConfig="editBaseConfig"
             />
         </v-row>
@@ -108,8 +111,10 @@
 <script>
 import {BattleStatus} from '~/modules/battle/battleStatus.js';
 import {BattleLog} from '~/modules/battle/battleLog.js';
-import {WeaponConfig} from '~/modules/battle/weaponConfig.js'
-import {BattleBaseConfig} from '~/modules/battle/batteleBaseConfig.js'
+import {WeaponConfig} from '~/modules/battle/weaponConfig.js';
+import {BattleBaseConfig} from '~/modules/battle/batteleBaseConfig.js';
+import {Condition} from '~/modules/battle/condition.js';
+import {Bullet} from '~/modules/battle/bullet.js';
 import BattleLogVue from '../components/battle/BattleLogVue.vue';
 import BattleConfigTab from '../components/battle/BattleConfigTab.vue';
 export default {
@@ -143,6 +148,8 @@ export default {
                 "魔法": {"デフォルト": new WeaponConfig()},
             },
             battleConf: new BattleBaseConfig(),
+            condtionList: {"デフォルト": new Condition()},
+            bulletList: {"デフォルト": new Bullet()},
         }
     },
     props: {
@@ -172,6 +179,9 @@ export default {
             // 自分と敵の装備した武器を取得
             let myWeapon = this.weaponList[this.selectMyWeaponType][this.selectMyWeapon];
             let enemyWeapon = this.weaponList[this.selectEnemyWeaponType][this.selectEnemyWeapon];
+            // 数値型に修正
+            myWeapon.weaponConf2Num();
+            enemyWeapon.weaponConf2Num();
 
             // 自分と敵のステータスを取得
             let myStatus = this.sumStatus(this.statusList[this.selectMy].status, myWeapon.status.status);
@@ -296,8 +306,8 @@ export default {
         calcMystery: function(str, mystery, def){
             // 奥義ダメージの計算
             let dmgRnd = Math.floor(Math.random() * Number(this.battleConf.mysteryRand) * 100) / 100 * str;
-            
-            return Math.floor((str + dmgRnd) * mystery - def / 5);
+            let dmg = Math.floor((str + dmgRnd) * mystery - def / 5);
+            return dmg>0? dmg: 0;
         },
         excuteAction: function(actionValue, spd, mysteryValue, myStr, enemyDef, mystery, mysteryRise, ch, weapon, pre, preFlg, leftHp, myFlg){
             actionValue += spd;
@@ -393,12 +403,25 @@ export default {
             let saveJson = JSON.stringify(this.weaponList);
             localStorage.setItem("weapon-list", saveJson);
         },
+        editCondtionConfig: function(editInfo){
+            // CRUDに合わせて処理を分岐
+            if((editInfo["crud"] == "cu")){
+                // 新規・更新
+                this.$set(this.condtionList, editInfo["key"], editInfo["value"]);
+            }else if(editInfo["crud"]== "d"){
+                // 削除
+                delete this.condtionList[editInfo["key"]];
+            }
+            // ローカルストレージに保存
+            let saveJson = JSON.stringify(this.condtionList);
+            localStorage.setItem("battle-condtion", saveJson);
+        },
         editBaseConfig: function(editInfo){
             this.battleConf = editInfo;
             // ローカルストレージに保存
             let saveJson = JSON.stringify(this.battleConf);
             localStorage.setItem("battle-conf", saveJson);
-        }
+        },
     },
     mounted(){
         // ローカルストレージから設定情報を読み取る
@@ -428,9 +451,18 @@ export default {
             };
         }
 
+        // バトル全般設定
         this.battleConf = JSON.parse(localStorage.getItem("battle-conf"));
         if(this.battleConf == null) {
             this.battleConf = new BattleBaseConfig();
+        }
+
+        // バフデバフなどの状態設定
+        this.condtionList = JSON.parse(localStorage.getItem("battle-condtion"));
+        if(this.condtionList == null) {
+            this.condtionList = {
+                "デフォルト": new Condition()
+            };
         }
 
     },
