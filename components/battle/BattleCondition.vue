@@ -11,7 +11,7 @@
             <v-toolbar flat>
                 <v-toolbar-title>状態設定</v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-dialog v-model="dialog" max-width="1000px">
+                <v-dialog v-model="dialog" max-width="750px">
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn v-bind="attrs" v-on="on" color="primary">
                             NEW ITEM
@@ -23,7 +23,7 @@
                             <v-container>
                                 <v-form ref="editForm">
                                     <v-row>
-                                        <v-col cols="8">
+                                        <v-col>
                                             <v-text-field
                                                 v-model="editedConditionName"
                                                 :disabled="editedIndex!=-1"
@@ -31,87 +31,68 @@
                                                 label="保存名"
                                             />
                                         </v-col>
-                                        <v-col cols="2">
+                                    </v-row>
+                                    <v-row>
+                                        <v-col>
+                                            <v-card>
+                                                <v-card-subtitle>変化割合値</v-card-subtitle>
+                                                <v-card-text>
+                                                    <v-row>
+                                                        <v-col v-for="item in statusKeys" :key="item">
+                                                            <v-text-field
+                                                                v-model="editedCondition.statusRate[item]"
+                                                                :rules="[rules.numberInput]"
+                                                                :label="item"
+                                                            />
+                                                        </v-col>
+                                                    </v-row>
+                                                </v-card-text>
+                                            </v-card>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col>
+                                            <v-card>
+                                                <v-card-subtitle>変化固定値</v-card-subtitle>
+                                                <v-card-text>
+                                                    <v-row>
+                                                        <v-col v-for="item in statusKeys" :key="item">
+                                                            <v-text-field
+                                                                v-model="editedCondition.statusValue[item]"
+                                                                :rules="[rules.numberInput]"
+                                                                :label="item"
+                                                            />
+                                                        </v-col>
+                                                    </v-row>
+                                                </v-card-text>
+                                            </v-card>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col>
+                                            <p>対象</p>
+                                            <v-radio-group
+                                                v-model="editedCondition.target"
+                                                mandatory
+                                                row
+                                            >
+                                                <v-radio label="攻撃側" :value="true" />
+                                                <v-radio label="防御側" :value="false" />
+                                            </v-radio-group>
+                                        </v-col>
+                                        <v-col cols="3">
                                             <v-text-field
                                                 v-model="editedCondition.turn"
                                                 :rules="[rules.numberInput]"
                                                 label="時間"
                                             />                                            
                                         </v-col>
-                                        <v-col cols="2">
+                                        <v-col cols="3">
                                             <v-text-field
                                                 v-model="editedCondition.rate"
                                                 :rules="[rules.numberInput]"
                                                 label="確率"
                                             />                                            
-                                        </v-col>
-                                    </v-row>
-                                    <v-row>
-                                        <v-col>
-                                            <v-card>
-                                                <v-card-subtitle>攻撃側変化割合</v-card-subtitle>
-                                                <v-card-text>
-                                                    <v-row>
-                                                        <v-col v-for="item in statusKeys" :key="item">
-                                                            <v-text-field
-                                                                v-model="editedCondition.myStatusRate[item]"
-                                                                :rules="[rules.numberInput]"
-                                                                :label="item"
-                                                            />
-                                                        </v-col>
-                                                    </v-row>
-                                                </v-card-text>
-                                            </v-card>
-                                        </v-col>
-                                        <v-col>
-                                            <v-card>
-                                                <v-card-subtitle>攻撃側変化固定値</v-card-subtitle>
-                                                <v-card-text>
-                                                    <v-row>
-                                                        <v-col v-for="item in statusKeys" :key="item">
-                                                            <v-text-field
-                                                                v-model="editedCondition.myStatusValue[item]"
-                                                                :rules="[rules.numberInput]"
-                                                                :label="item"
-                                                            />
-                                                        </v-col>
-                                                    </v-row>
-                                                </v-card-text>
-                                            </v-card>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row>
-                                        <v-col>
-                                            <v-card>
-                                                <v-card-subtitle>防御側変化割合</v-card-subtitle>
-                                                <v-card-text>
-                                                    <v-row>
-                                                        <v-col v-for="item in statusKeys" :key="item">
-                                                            <v-text-field
-                                                                v-model="editedCondition.enemyStatusRate[item]"
-                                                                :rules="[rules.numberInput]"
-                                                                :label="item"
-                                                            />
-                                                        </v-col>
-                                                    </v-row>
-                                                </v-card-text>
-                                            </v-card>
-                                        </v-col>
-                                        <v-col>
-                                            <v-card>
-                                                <v-card-subtitle>防御側変化固定値</v-card-subtitle>
-                                                <v-card-text>
-                                                    <v-row>
-                                                        <v-col v-for="item in statusKeys" :key="item">
-                                                            <v-text-field
-                                                                v-model="editedCondition.enemyStatusValue[item]"
-                                                                :rules="[rules.numberInput]"
-                                                                :label="item"
-                                                            />
-                                                        </v-col>
-                                                    </v-row>
-                                                </v-card-text>
-                                            </v-card>
                                         </v-col>
                                     </v-row>
                                 </v-form>
@@ -148,11 +129,8 @@
             <thead>
                 <tr>
                     <th colspan="1" width="200"></th>
-                    <th colspan="7">攻撃側変化割合</th>
-                    <th colspan="7">攻撃側変化固定値</th>
-                    <th colspan="7">防御側変化割合</th>
-                    <th colspan="7">防御側変化固定値</th>
-                    
+                    <th colspan="7">変化割合値</th>
+                    <th colspan="7">変化固定値</th>                    
                 </tr>
             </thead>
         </template>
@@ -179,34 +157,21 @@ export default {
         return{
             headers:[
                 {text: "Name", value:"Name", width:"200"},
-                {text: "HP", value:"MyRateHP"},
-                {text: "STR", value:"MyRateSTR"},
-                {text: "DEX", value:"MyRateDEX"},
-                {text: "DEF", value:"MyRateDEF"},
-                {text: "INT", value:"MyRateINT"},
-                {text: "PRE", value:"MyRatePRE"},
-                {text: "SPD", value:"MyRateSPD"},
-                {text: "HP", value:"MyValueHP"},
-                {text: "STR", value:"MyValueSTR"},
-                {text: "DEX", value:"MyValueDEX"},
-                {text: "DEF", value:"MyValueDEF"},
-                {text: "INT", value:"MyValueINT"},
-                {text: "PRE", value:"MyValuePRE"},
-                {text: "SPD", value:"MyValueSPD"},
-                {text: "HP", value:"EnemyRateHP"},
-                {text: "STR", value:"EnemyRateSTR"},
-                {text: "DEX", value:"EnemyRateDEX"},
-                {text: "DEF", value:"EnemyRateDEF"},
-                {text: "INT", value:"EnemyRateINT"},
-                {text: "PRE", value:"EnemyRatePRE"},
-                {text: "SPD", value:"EnemyRateSPD"},
-                {text: "HP", value:"EnemyValueHP"},
-                {text: "STR", value:"EnemyValueSTR"},
-                {text: "DEX", value:"EnemyValueDEX"},
-                {text: "DEF", value:"EnemyValueDEF"},
-                {text: "INT", value:"EnemyValueINT"},
-                {text: "PRE", value:"EnemyValuePRE"},
-                {text: "SPD", value:"EnemyValueSPD"},
+                {text: "HP", value:"RateHP"},
+                {text: "STR", value:"RateSTR"},
+                {text: "DEX", value:"RateDEX"},
+                {text: "DEF", value:"RateDEF"},
+                {text: "INT", value:"RateINT"},
+                {text: "PRE", value:"RatePRE"},
+                {text: "SPD", value:"RateSPD"},
+                {text: "HP", value:"ValueHP"},
+                {text: "STR", value:"ValueSTR"},
+                {text: "DEX", value:"ValueDEX"},
+                {text: "DEF", value:"ValueDEF"},
+                {text: "INT", value:"ValueINT"},
+                {text: "PRE", value:"ValuePRE"},
+                {text: "SPD", value:"ValueSPD"},
+                {text: "対象", value: "Target"},
                 {text: "時間", value:"Turn"},
                 {text: "確率", value:"rate"},
                 { text: 'Actions', value: 'actions', sortable: false , width: "150"}
@@ -286,10 +251,8 @@ export default {
             // 更新内容をセット
             this.editedConditionName = item["Name"];
             for(let i=0; i<this.statusKeys.length; i++){
-                this.editedCondition.myStatusRate[this.statusKeys[i]] = item["MyRate" + this.statusKeys[i]];
-                this.editedCondition.myStatusValue[this.statusKeys[i]] = item["MyValue" + this.statusKeys[i]];
-                this.editedCondition.enemyStatusRate[this.statusKeys[i]] = item["EnemyRate" + this.statusKeys[i]];
-                this.editedCondition.enemyStatusValue[this.statusKeys[i]] = item["EnemyValue" + this.statusKeys[i]];
+                this.editedCondition.statusRate[this.statusKeys[i]] = item["Rate" + this.statusKeys[i]];
+                this.editedCondition.statusValue[this.statusKeys[i]] = item["Value" + this.statusKeys[i]];
             }
             this.editedCondition.turn = item["Turn"];
             this.editedCondition.rate = item["rate"];
@@ -335,34 +298,21 @@ export default {
         makeTableData: function(key, value){
             return {
                 "Name": key,
-                "MyRateHP": this.checkZeros(value.myStatusRate["HP"]),
-                "MyRateSTR": this.checkZeros(value.myStatusRate["STR"]), 
-                "MyRateDEX": this.checkZeros(value.myStatusRate["DEX"]),
-                "MyRateDEF": this.checkZeros(value.myStatusRate["DEF"]),
-                "MyRateINT": this.checkZeros(value.myStatusRate["INT"]),
-                "MyRatePRE": this.checkZeros(value.myStatusRate["PRE"]),
-                "MyRateSPD": this.checkZeros(value.myStatusRate["SPD"]),
-                "MyValueHP": this.checkZeros(value.myStatusValue["HP"]),
-                "MyValueSTR": this.checkZeros(value.myStatusValue["STR"]),
-                "MyValueDEX": this.checkZeros(value.myStatusValue["DEX"]),
-                "MyValueDEF": this.checkZeros(value.myStatusValue["DEF"]),
-                "MyValueINT": this.checkZeros(value.myStatusValue["INT"]),
-                "MyValuePRE": this.checkZeros(value.myStatusValue["PRE"]),
-                "MyValueSPD": this.checkZeros(value.myStatusValue["SPD"]),
-                "EnemyRateHP": this.checkZeros(value.enemyStatusRate["HP"]),
-                "EnemyRateSTR": this.checkZeros(value.enemyStatusRate["STR"]),
-                "EnemyRateDEX": this.checkZeros(value.enemyStatusRate["DEX"]),
-                "EnemyRateDEF": this.checkZeros(value.enemyStatusRate["DEF"]),
-                "EnemyRateINT": this.checkZeros(value.enemyStatusRate["INT"]),
-                "EnemyRatePRE": this.checkZeros(value.enemyStatusRate["PRE"]),
-                "EnemyRateSPD": this.checkZeros(value.enemyStatusRate["SPD"]),
-                "EnemyValueHP": this.checkZeros(value.enemyStatusValue["HP"]),
-                "EnemyValueSTR": this.checkZeros(value.enemyStatusValue["STR"]),
-                "EnemyValueDEX": this.checkZeros(value.enemyStatusValue["DEX"]),
-                "EnemyValueDEF": this.checkZeros(value.enemyStatusValue["DEF"]),
-                "EnemyValueINT": this.checkZeros(value.enemyStatusValue["INT"]),
-                "EnemyValuePRE": this.checkZeros(value.enemyStatusValue["PRE"]),
-                "EnemyValueSPD": this.checkZeros(value.enemyStatusValue["SPD"]),
+                "RateHP": this.checkZeros(value.statusRate["HP"]),
+                "RateSTR": this.checkZeros(value.statusRate["STR"]), 
+                "RateDEX": this.checkZeros(value.statusRate["DEX"]),
+                "RateDEF": this.checkZeros(value.statusRate["DEF"]),
+                "RateINT": this.checkZeros(value.statusRate["INT"]),
+                "RatePRE": this.checkZeros(value.statusRate["PRE"]),
+                "RateSPD": this.checkZeros(value.statusRate["SPD"]),
+                "ValueHP": this.checkZeros(value.statusValue["HP"]),
+                "ValueSTR": this.checkZeros(value.statusValue["STR"]),
+                "ValueDEX": this.checkZeros(value.statusValue["DEX"]),
+                "ValueDEF": this.checkZeros(value.statusValue["DEF"]),
+                "ValueINT": this.checkZeros(value.statusValue["INT"]),
+                "ValuePRE": this.checkZeros(value.statusValue["PRE"]),
+                "ValueSPD": this.checkZeros(value.statusValue["SPD"]),
+                "Target": value.target? "攻撃側": "防御側",
                 "Turn": this.checkZeros(value.turn),
                 "rate": this.checkZeros(value.rate)
             };
@@ -387,19 +337,6 @@ export default {
 }
 </script>
 <style scoped>
-.v-data-table >>> th:nth-child(1) {
-    position: sticky !important;
-    position: -webkit-sticky !important;
-    left: 0;
-    z-index: 9999;
-    background: #1E1E1E;
-}
-.v-data-table >>> td:nth-child(1) {
-    position: sticky !important;
-    position: -webkit-sticky !important;
-    left: 0;
-    z-index: 9999;
-    background: #1E1E1E;
-}
+
 
 </style>
