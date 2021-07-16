@@ -20,7 +20,7 @@ export class WeaponConfig{
         this.mystery = 2;
         this.mysteryRise = 2;
         this.attack = 1;
-        this.bullet = null;
+        this.bullet = [];
         this.status = new BattleStatus(10, 0, 0, 0, 0, 0, 0);
     }
 }

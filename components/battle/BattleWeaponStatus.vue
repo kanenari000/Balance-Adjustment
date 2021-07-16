@@ -7,11 +7,16 @@
             'items-per-page-options': [5]
         }"
     >
+        <template v-slot:[`item.Bullet`]="{item}">
+            <v-chip v-for="(bullet, index) in item.Bullet" :key="index">
+                {{bullet}}
+            </v-chip>
+        </template>
         <template v-slot:top>
             <v-toolbar flat>
                 <v-toolbar-title>武器ステータス</v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-dialog v-model="dialog" max-width="500px">
+                <v-dialog v-model="dialog" max-width="1000px">
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn v-bind="attrs" v-on="on" color="primary">
                             NEW ITEM
@@ -38,40 +43,70 @@
                                                 label="武器種"
                                             />
                                         </v-col>
-                                        <v-col v-for="item in statusKeys" :key="item" cols="4">
+                                        <v-col v-for="item in statusKeys" :key="item" cols="2">
                                             <v-text-field
                                                 v-model="editedStatus.status.status[item]"
                                                 :rules="[rules.numberInput]"
                                                 :label="item"
                                             />
                                         </v-col>
-                                        <v-col cols="4">
+                                        <v-col cols="2">
                                             <v-text-field
                                                 v-model="editedStatus.ch"
                                                 :rules="[rules.numberInput]"
                                                 label="クリティカル補正"
                                             />
                                         </v-col>
-                                        <v-col cols="4">
+                                        <v-col cols="2">
                                             <v-text-field
                                                 v-model="editedStatus.mystery"
                                                 :rules="[rules.numberInput]"
                                                 label="奥義ダメージ補正"
                                             />
                                         </v-col>
-                                        <v-col cols="4">
+                                        <v-col cols="2">
                                             <v-text-field
                                                 v-model="editedStatus.mysteryRise"
                                                 :rules="[rules.numberInput]"
                                                 label="奥義ゲージ上昇量補正"
                                             />
                                         </v-col>
-                                        <v-col cols="4">
+                                        <v-col cols="2">
                                             <v-text-field
                                                 v-model="editedStatus.attack"
                                                 :rules="[rules.numberInput]"
                                                 label="通常攻撃ダメージ補正"
                                             />
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col>
+                                            <v-select
+                                                v-model="addBulletKey"
+                                                :items="bulletList"
+                                                :disabled="editWeaponType!='射撃'"
+                                                label="追加弾名"
+                                            />
+                                        </v-col>
+                                        <v-col>
+                                            <v-btn
+                                                @click="addBuleets()"
+                                                :disabled="(editWeaponType!='射撃')||(addBulletKey==null)"
+                                            >
+                                                追加
+                                            </v-btn>
+                                        </v-col>
+                                        <v-col>装填数：{{editedStatus.bullet.length}}</v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col>
+                                            <v-chip v-for="(bullet, index) in editedStatus.bullet"
+                                                :key="index"
+                                                close
+                                                @click:close="deleteBullets(index)"
+                                            >
+                                                {{bullet}}
+                                            </v-chip>
                                         </v-col>
                                     </v-row>
                                 </v-form>
@@ -126,20 +161,21 @@ export default {
     data(){
         return{
             headers:[
-                {text: "Name", value:"Name"},
-                {text: "武器種", value:"Weapon"},
-                {text: "STR", value:"STR"},
-                {text: "DEX", value:"DEX"},
-                {text: "DEF", value:"DEF"},
-                {text: "INT", value:"INT"},
-                {text: "PRE", value:"PRE"},
-                {text: "SPD", value:"SPD"},
-                {text: "MAX-HP", value:"MAX-HP"},
-                {text: "クリティカル補正", value:"CH"},
-                {text: "奥義ダメージ補正", value:"Mystery"},
-                {text: "奥義ゲージ上昇量補正", value:"MysteryRise"},
-                {text: "通常攻撃ダメージ補正", value:"Attack"},
-                { text: 'Actions', value: 'actions', sortable: false }
+                {text: "Name", value:"Name", width:"150"},
+                {text: "武器種", value:"Weapon", width:"100"},
+                {text: "STR", value:"STR", width:"70"},
+                {text: "DEX", value:"DEX", width:"70"},
+                {text: "DEF", value:"DEF", width:"70"},
+                {text: "INT", value:"INT", width:"70"},
+                {text: "PRE", value:"PRE", width:"70"},
+                {text: "SPD", value:"SPD", width:"70"},
+                {text: "MAX-HP", value:"MAX-HP", width:"70"},
+                {text: "クリティカル補正", value:"CH", width:"70"},
+                {text: "奥義ダメージ補正", value:"Mystery", width:"70"},
+                {text: "奥義ゲージ上昇量補正", value:"MysteryRise", width:"70"},
+                {text: "通常攻撃ダメージ補正", value:"Attack", width:"70"},
+                {text: "装填弾", value:"Bullet", width:"400"},
+                { text: 'Actions', value: 'actions', sortable: false , width:"150"}
             ],
             weaponKeys: ["刀剣", "長柄", "打撃", "射撃", "魔法"],
             statusKeys: ["STR", "DEX", "DEF", "INT", "PRE", "SPD", "MAX-HP"],
@@ -155,10 +191,13 @@ export default {
                 numberInput: value => isFinite(value) || '数値を入力してください',
                 alreadyEntered: value => this.editedIndex!=-1 || !Object.keys(this.weaponList[this.editWeaponType]).includes(value) || '既に登録済みの名称です'
             },
+            addBulletKey: null,
+
         }
     },
     props: {
         weaponList: Object,
+        bulletList: Array,
     },
     created () {
       this.initialize()
@@ -182,7 +221,8 @@ export default {
                             "CH": this.weaponList[this.weaponKeys[i]][key].ch,
                             "Mystery": this.weaponList[this.weaponKeys[i]][key].mystery,
                             "MysteryRise": this.weaponList[this.weaponKeys[i]][key].mysteryRise,
-                            "Attack": this.weaponList[this.weaponKeys[i]][key].attack
+                            "Attack": this.weaponList[this.weaponKeys[i]][key].attack,
+                            "Bullet": this.weaponList[this.weaponKeys[i]][key].bullet
                         }
                     );
                 });
@@ -224,6 +264,10 @@ export default {
                 if(0 == this.editedStatus.attack){
                     this.editedStatus.attack = 0;
                 }
+                // 武器種が射撃以外は弾を空配列にする
+                if(this.editWeaponType != "射撃"){
+                    this.editedStatus.bullet = [];
+                }
                 let editItem = {
                     "Name": this.editedStatusName,
                     "Weapon": this.editWeaponType,
@@ -237,7 +281,8 @@ export default {
                     "CH": this.editedStatus.ch,
                     "Mystery": this.editedStatus.mystery,
                     "MysteryRise": this.editedStatus.mysteryRise,
-                    "Attack": this.editedStatus.attack
+                    "Attack": this.editedStatus.attack,
+                    "Bullet": this.editedStatus.bullet
                 };
                 if (this.editedIndex > -1) {
                     // 更新時の処理
@@ -262,6 +307,7 @@ export default {
             this.editedIndex = this.weapons.indexOf(item);
             // 更新内容をセット
             this.editedStatusName = item["Name"];
+            this.editWeaponType =item["Weapon"];
             for(let i=0; i<this.statusKeys.length; i++){
                 this.editedStatus.status.status[this.statusKeys[i]] = item[this.statusKeys[i]];
             }
@@ -275,6 +321,7 @@ export default {
         copyItem: function(item){
             // 更新内容をセット
             this.editedStatusName = item["Name"];
+            this.editWeaponType =item["Weapon"];
             for(let i=0; i<this.statusKeys.length; i++){
                 this.editedStatus.status.status[this.statusKeys[i]] = item[this.statusKeys[i]];
             }
@@ -303,6 +350,14 @@ export default {
             this.weapons.splice(this.editedIndex, 1);
             this.closeDelete();
         },
+        addBuleets: function(){
+            // 選択した弾を追加
+            this.editedStatus.bullet.push(this.addBulletKey);
+        },
+        deleteBullets: function(index){
+            // 指定の弾を削除
+            this.editedStatus.bullet.splice(index, 1);
+        }
     },
     watch: {
         dialog (val) {
