@@ -315,6 +315,7 @@ export default {
             this.editedStatus.mystery = item["Mystery"];
             this.editedStatus.mysteryRise = item["MysteryRise"];
             this.editedStatus.attack = item["Attack"];
+            this.editedStatus.bullet = item["Bullet"];
 
             this.dialog = true;
         },
@@ -329,6 +330,7 @@ export default {
             this.editedStatus.mystery = item["Mystery"];
             this.editedStatus.mysteryRise = item["MysteryRise"];
             this.editedStatus.attack = item["Attack"];
+            this.editedStatus.bullet = item["Bullet"];
 
             this.dialog = true;
         },
