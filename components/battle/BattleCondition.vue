@@ -277,7 +277,7 @@ export default {
             this.closeDelete();
         },
         checkZeros: function(value){
-            return 0==value ? 0: value;
+            return 0==value ? 0: Number(value);
         },
         isDeletable: function(){
             if((!this.dialogDelete) || (this.editedIndex == -1)){

@@ -22,7 +22,11 @@
                     <td>{{log.enemyLeftHp}}</td>
                     <td>{{log.enemyActionValue}}</td>
                     <td>{{log.enemyMysteryValue}}</td>
-                    <td>{{log.logMessage}}</td>
+                    <td>
+                        <div v-for="logMsg in log.logMessage" :key="logMsg">
+                            {{logMsg}}
+                        </div>
+                    </td>
                 </tr>
             </tbody>
         </template>
@@ -50,5 +54,8 @@ export default {
 }
 </script>
 <style>
+.v-simple-table {
+  white-space: pre-line;
+}
 
 </style>

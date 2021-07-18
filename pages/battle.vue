@@ -238,6 +238,8 @@ export default {
                 "AV": myActionValue,
                 "PSPD": myPreSpd,
                 "MV": myMysteryValue,
+                "W": myWeapon,
+                "WT": this.selectMyWeaponType,
                 "M": myMystery,
                 "MR": myMysRise,
                 "CH": myCH,
@@ -245,6 +247,7 @@ export default {
                 "STR": myStr,
                 "PRE": myStatus["PRE"],
                 "DEF": myStatus["DEF"],
+                "STATUS": myStatus,
                 "SPD": mySpd,
                 "HP": myLeftHp,
                 "C": [],
@@ -255,6 +258,8 @@ export default {
                 "AV": enemyActionValue,
                 "PSPD": enemyPreSpd,
                 "MV": enemyMysteryValue,
+                "W": enemyWeapon,
+                "WT": this.selectEnemyWeaponType,
                 "M": enemyMystery,
                 "MR": enemyMysRise,
                 "CH": enemyCH,
@@ -262,6 +267,7 @@ export default {
                 "STR": enemyStr,
                 "PRE": enemyStatus["PRE"],
                 "DEF": enemyStatus["DEF"],
+                "STATUS": enemyStatus,
                 "SPD": enemySpd,
                 "HP": enemyLeftHp,
                 "C": [],
@@ -270,6 +276,19 @@ export default {
             
             // どちらかのHPが0になるまで無限ループ
             while(m["HP"] > 0 && e["HP"] > 0){
+                // ターン開始状態の状態管理
+                if((m["C"].length>0) || (e["C"].length>0)){
+                    let myLog = "自分の状態：";
+                    let enemyLog = "敵の状態：";
+                    for(let i=0; i<m["C"].length; i++){
+                        myLog += "[ " + m["C"][i]["name"] + " ]";
+                    }
+                    for(let i=0; i<e["C"].length; i++){
+                        enemyLog += "[ " + e["C"][i]["name"] + " ]";
+                    }
+                    this.battleLogs.push(new BattleLog(turn, m["HP"], m["AV"], m["MV"], e["HP"], e["AV"], e["MV"], [myLog, enemyLog]));
+                }
+
                 // 主人公側の行動処理
                 let logMsg = "";
                 [m, e, preFlg, logMsg] = this.judgePreNomal(m, e, preFlg, true);
@@ -337,61 +356,80 @@ export default {
             let dmg = Math.floor((str + dmgRnd) * mystery - def / 5) + bulletVal;
             return dmg>0? dmg: 0;
         },
+        judgeConditionTurn: function(m, myFlg, target){
+            let logMsgList = [];
+            let me = target? "自分": "敵";
+            me += "の状態：";
+            for(let i=0; i<m["C"].length; i++){
+                if(m["C"][i]["myFlg"] == myFlg){
+                    m["C"][i]["turn"]--;
+                    if(
+                        (this.condtionList[m["C"][i]["name"]].statusRate["HP"]!=0) ||
+                        (this.condtionList[m["C"][i]["name"]].statusValue["HP"]!=0))
+                    {
+                        // HP変化の状態が付与されている場合はここで清算
+                        let dmg = m["STATUS"]["MAX-HP"] * Number(this.condtionList[m["C"][i]["name"]].statusRate["HP"]);
+                        dmg -= Number(this.condtionList[m["C"][i]["name"]].statusValue["HP"]);
+                        logMsgList.push(me + m["C"][i]["name"] + " の効果で " + dmg + "ダメージ");
+                        m["HP"] -= dmg;
+                    }
+                    if(m["C"][i]["turn"] == 0){
+                        logMsgList.push(me + m["C"][i]["name"] + " が解除された");
+                        m["C"].splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+            return [m, logMsgList];
+        },
         judgePreNomal: function(m, e, preFlg, myFlg){
-            let logMsg = "";
+            // 状態が付与されている場合、ターンを経過させる
+            let logMsgList = [];
+            let actionLog = [];
 
             // 射撃だけ別処理にするため、処理対象の武器種を取得
-            let targetWeaponType = myFlg? this.selectMyWeaponType: this.selectEnemyWeaponType;
-            if(targetWeaponType == "射撃"){
+            if(m["WT"] == "射撃"){
                 // 装填している弾がない場合はリロード、ある場合は攻撃を実施
                 if(m["B"].length == 0){
                     let targetWeapon = myFlg? this.selectMyWeapon: this.selectEnemyWeapon;
                     let bullets = this.weaponList["射撃"][targetWeapon].bullet.concat();
                     m["B"] = bullets;
-                    logMsg = myFlg? "自分": "敵";
+                    let logMsg = myFlg? "自分": "敵";
                     logMsg += " のターン 残弾数0のためリロード！"
+                    logMsgList.push(logMsg);
                 }else{
-                    [m, e, logMsg, preFlg, myFlg] = this.excuteBulletAction(m, e, preFlg, myFlg);
+                    [m, e, actionLog, preFlg, myFlg] = this.excuteBulletAction(m, e, preFlg, myFlg);
                 }
             }else{
-                // どちらかが初撃を与えるまではPREで行動
-                if(preFlg){                    
-                    [m["AV"], m["MV"], e["HP"], logMsg, preFlg] = this.excuteAction(
-                        m["AV"], m["PSPD"], m["MV"], m["STR"], e["DEF"], m["M"],
-                        m["MR"], m["CH"], m["WA"], m["PRE"], preFlg, e["HP"], myFlg
-                    );
-                }else{
-                    [m["AV"], m["MV"], e["HP"], logMsg, preFlg] = this.excuteAction(
-                        m["AV"], m["SPD"], m["MV"], m["STR"], e["DEF"], m["M"],
-                        m["MR"], m["CH"], m["WA"], 0, preFlg, e["HP"], myFlg
-                    );
-                }
+                [m, e, actionLog, preFlg] = this.excuteAction(m, e, preFlg, myFlg);
             }
-
-            return [m, e, preFlg, logMsg];
+            
+            return [m, e, preFlg, logMsgList.concat(actionLog)];
         },
-        excuteAction: function(actionValue, spd, mysteryValue, myStr, enemyDef, mystery, mysteryRise, ch, weapon, pre, preFlg, leftHp, myFlg){
-            actionValue += spd;
+        excuteAction: function(m, e, preFlg, myFlg){
+            m["AV"] += m["SPD"];
+
+            let pre = preFlg? m["PRE"]: 0;
+            let logMsgList = [];
             let logMsg = "";
             let me = myFlg ? "自分": "敵"
             let enemy = myFlg ? "敵": "自分"
-            let weaponType = myFlg ? this.selectMyWeaponType: this.selectEnemyWeaponType;
             let preLogMsg = me + " の攻撃 " + enemy + " に ";
             let sufLogMsg = " のダメージ！";
             // 行動値ゲージが100になったら攻撃行動を実施する
-            if(actionValue >= 100){
+            if(m["AV"] >= 100){
                 preFlg = false;
-                actionValue -= 100;
+                m["AV"] -= 100;
                 let dmg = 0;
                 // 奥義ゲージが100以上なら奥義を発動し、そうでないなら通常攻撃
-                if(mysteryValue >= 100){
-                    mysteryValue -= 100;
-                    dmg = this.calcMystery(myStr, mystery, enemyDef);
+                if(m["MV"] >= 100){
+                    m["MV"] -= 100;
+                    dmg = this.calcMystery(m["STR"], m["M"], e["DEF"]);
                     logMsg = "奥義発動！！ "
                 }else{
-                    if("魔法" == weaponType){
+                    if("魔法" == m["WT"]){
                         // 魔法の場合は通常攻撃無
-                    }else if("打撃" == weaponType){
+                    }else if("打撃" == m["WT"]){
                         // 打撃武器の場合は連続攻撃の判定を実施
                         let commboNum = 1;
                         for(let i=1; i>=0; i--){
@@ -402,28 +440,46 @@ export default {
                         }
                         logMsg = commboNum==1? "": String(commboNum) + "Hit！"
                         for(let i=0; i< commboNum; i++){
-                            dmg += this.calcDamage(myStr, enemyDef, ch, weapon, pre);
+                            dmg += this.calcDamage(m["STR"], e["DEF"], m["CH"], m["WA"], pre);
                         }
                     }else{
-                        dmg = this.calcDamage(myStr, enemyDef, ch, weapon, pre);
+                        dmg = this.calcDamage(m["STR"], e["DEF"], m["CH"], m["WA"], pre);
                     }
-                    mysteryValue += mysteryRise;
+                    m["MV"] += m["MR"];
                 }
                 logMsg += (0==dmg) ? "": preLogMsg + String(dmg) + sufLogMsg;
-                leftHp -= dmg;
-                if(leftHp <= 0) {
-                    logMsg += " " + me + " の勝利！！"
+                logMsgList.push(logMsg);
+                e["HP"] -= dmg;
+                if(e["HP"] <= 0) {
+                    let winLogMsg = " " + me + " の勝利！！";
+                    logMsgList.push(winLogMsg);
                 }
             }
-            return [actionValue, mysteryValue, leftHp, logMsg, preFlg];
+            return [m, e, logMsgList, preFlg];
         },
         excuteBulletAction: function(m, e, preFlg, myFlg){
+            let mylogs =[], enemyLogs = [];
             let logMsg = "";
             m["AV"] += m["SPD"];
+
+            // 状態の解除判定
+            [m, mylogs] = this.judgeConditionTurn(m, myFlg, myFlg);
+            [e, enemyLogs] = this.judgeConditionTurn(e, myFlg, !myFlg);
+            let logMsgList = mylogs.concat(enemyLogs);
+            // 状態を考慮してステータスを再計算
+            [m, e] = this.getCharaStatus(m, e);
+
+
             let me = myFlg ? "自分": "敵"
             let enemy = myFlg ? "敵": "自分"
             let preLogMsg = me + " の攻撃 " + enemy + " に ";
             let sufLogMsg = " のダメージ！";
+            // 敵のHP判定
+            if(e["HP"] <= 0) {
+                let winLogMsg = " " + me + " の勝利！！"
+                logMsgList.push(winLogMsg);
+                return [m, e, logMsgList, preFlg, myFlg];
+            }
             
             // 行動値ゲージが100になったら攻撃行動を実施する
             if(m["AV"] >= 100){
@@ -432,22 +488,125 @@ export default {
                 preFlg = false;
                 let bullet = m["B"][0];
                 m["B"].splice(0, 1);
+                // 状態を判定して付与
+                let conditions = this.bulletList[bullet].grantCondition;
+                for(let i=0; i<conditions.length; i++){
+                    let condtion = this.condtionList[conditions[i]];
+                    let randNum = Math.random();
+                    if(condtion.rate > randNum){
+                        if(condtion.target){
+                            let tmpLogMsg = me + "に[ " + conditions[i] + " ]を付与";
+                            logMsgList.push(tmpLogMsg);
+                            m["C"].push({
+                                "name": conditions[i],
+                                "turn":condtion.turn,
+                                "myFlg": myFlg
+                            });
+                        }else{
+                            let tmplogMsg = enemy + "に[" + conditions[i] + "]を付与";
+                            logMsgList.push(tmplogMsg);
+                            e["C"].push({
+                                "name": conditions[i],
+                                "turn":condtion.turn,
+                                "myFlg": myFlg
+                            });
+                        }
+                    }
+                }
+                if(conditions.length != 0){
+                    // 状態が新たに付与された場合は、ステータスを再計算する
+                    [m, e] = this.getCharaStatus(m, e);
+                }
                 let dmg = 0;
                 // 奥義ゲージが100以上なら奥義を発動し、そうでないなら通常攻撃
                 if(this.bulletList[bullet].mysteryFlg){
                     dmg = this.calcMystery(m["STR"], m["M"], e["DEF"], bullet);
-                    logMsg = "奥義弾 " + bullet + "！！ ";
+                    logMsg += "奥義弾 " + bullet + "！！ ";
                 }else{
-                    logMsg = "通常弾 " + bullet + " ";
+                    logMsg += "通常弾 " + bullet + " ";
                     dmg = this.calcDamage(m["STR"], e["DEF"], m["CH"], m["WA"], pre, bullet);
                 }
                 logMsg += (0==dmg) ? "": preLogMsg + String(dmg) + sufLogMsg;
+                logMsgList.push(logMsg);
                 e["HP"] -= dmg;
                 if(e["HP"] <= 0) {
-                    logMsg += " " + me + " の勝利！！"
+                    let winLogMsg = " " + me + " の勝利！！"
+                    logMsgList.push(winLogMsg);
                 }
             }
-            return [m, e, logMsg, preFlg, myFlg];
+            return [m, e, logMsgList, preFlg, myFlg];
+        },
+        getCharaStatus: function(m, e){
+            // 状態が何も付与されていない場合そのまま返却
+            if((m["C"].length == 0) && (e["C"].length == 0)){
+                return [m, e];
+            }
+
+            let mRate = this.makeConditionStatus(1);
+            let eRate = this.makeConditionStatus(1);
+            let mValue = this.makeConditionStatus(0);
+            let eValue = this.makeConditionStatus(0);
+            let statusKeys = ["HP", "STR", "DEX", "DEF", "INT", "PRE", "SPD"];
+            // 付与されている状態によるステータス変化の合計を計算
+            for(let i=0; i<m["C"].length; i++){
+                statusKeys.forEach(key =>{
+                    mRate[key] += Number(this.condtionList[m["C"][i]["name"]].statusRate[key]);
+                    mValue[key] += Number(this.condtionList[m["C"][i]["name"]].statusValue[key]);
+                });
+            }
+            for(let i=0; i<e["C"].length; i++){
+                statusKeys.forEach(key =>{
+                    eRate[key] += Number(this.condtionList[e["C"][i]["name"]].statusRate[key]);
+                    eValue[key] += Number(this.condtionList[e["C"][i]["name"]].statusValue[key]);
+                });
+            }
+            // 行動値をリセット
+            if(m["STATUS"]["SPD"] > e["STATUS"]["SPD"]){
+                m["SPD"] = 50;
+                e["SPD"] = Math.floor(50 * e["STATUS"]["SPD"] / m["STATUS"]["SPD"]);
+            }else {
+                e["SPD"] = 50;
+                m["SPD"] = Math.floor(50 * m["STATUS"]["SPD"] / e["STATUS"]["SPD"]);
+            }
+
+            let mDex = m["STATUS"]["DEX"] * mRate["DEX"] + mValue["DEX"];
+            let mInt = m["STATUS"]["INT"] * mRate["INT"] + mValue["INT"];
+            let eDex = e["STATUS"]["DEX"] * eRate["DEX"] + eValue["DEX"];
+            let eInt = e["STATUS"]["INT"] * eRate["INT"] + eValue["INT"];
+            
+            // 状態を考慮したステータスを再計算
+            m = this.calcNowStatus(m, mRate, mValue, mDex, mInt, eDex, eInt);
+            e = this.calcNowStatus(e, eRate, eValue, eDex, eInt, mDex, mInt);
+
+            return [m, e];
+        },
+        makeConditionStatus: function(num){
+            return {
+                "HP": num,
+                "STR": num,
+                "DEX": num,
+                "DEF": num,
+                "INT": num,
+                "PRE": num,
+                "SPD": num
+            };
+        },
+        calcNowStatus: function(m, mRate, mValue, mDex, mInt, eDex, eInt){
+
+            let mStr = m["STATUS"]["STR"] * mRate["STR"] + mValue["STR"];
+
+            m["CH"] = mDex / eInt * (m["W"].ch + Number(this.battleConf.ch));
+            m["MR"] = (m["WT"]=="魔法") ?
+                Math.floor(mInt / eInt * (m["W"].mysteryRise + 30))
+                : Math.floor(mDex / eDex * (m["W"].mysteryRise + 10));
+            m["STR"] = (m["WT"]=="魔法")? mInt: mStr;
+            m["DEF"] = m["STATUS"]["DEF"] * mRate["DEF"] + mValue["DEF"];
+            m["PRE"] = m["STATUS"]["PRE"] * mRate["PRE"] + mValue["PRE"];
+            
+            // SPDはステータスではなく、行動値に効果するものとする
+            m["SPD"] = m["SPD"] * mRate["SPD"] + mValue["SPD"];
+
+            return m;
         },
         editCharacter: function(editInfo){
             // CRUDに合わせて処理を分岐
