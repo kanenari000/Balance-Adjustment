@@ -22,6 +22,7 @@
       <v-tab>探索成長ステータス</v-tab>
       <v-tab>探索入手素材</v-tab>
       <v-tab>店強化</v-tab>
+      <v-tab>訓練施設強化</v-tab>
       <v-tab>武器売却</v-tab>
       <v-tab>武器レシピ</v-tab>
       <v-tab>初期所持素材</v-tab>
@@ -49,6 +50,9 @@
       </v-tab-item>
       <v-tab-item eager>
         <shop-update :shopInfoList.sync="configInfo.shopInfoList" />
+      </v-tab-item>
+      <v-tab-item eager>
+        <status-update :trainingUpdate.sync="configInfo.trainingUpdate" />
       </v-tab-item>
       <v-tab-item eager>
         <weapon-info :weaponsInfoList.sync="configInfo.weaponsInfoList" />
@@ -83,6 +87,7 @@ import ShopUpdate from '../components/config/ShopUpdate.vue';
 import WeaponInfo from '../components/config/WeaponInfo.vue';
 import WeaponRecipe from '../components/config/WeaponRecipe.vue';
 import InitMaterial from '../components/config/InitMaterial.vue';
+import StatusUpdate from '../components/config/StatusUpdate.vue';
 export default {
   components: {
     Weapons,
@@ -92,6 +97,7 @@ export default {
     WeaponInfo,
     WeaponRecipe,
     InitMaterial,
+    StatusUpdate,
   },
   data(){
     return{
@@ -114,7 +120,21 @@ export default {
     // ローカルストレージにない場合はデフォルトの設定として新規インスタンスを生成
     this.configInfo = JSON.parse(localStorage.getItem("config-info"));
     if (this.configInfo == null){
-        this.configInfo = new ConfigItems();
+      this.configInfo = new ConfigItems();
+    }
+    // あとから追加したコンフィグ内容なので有無判定を実施
+    if(!("trainingUpdate" in this.configInfo)){
+      let setConfigItem = new ConfigItems();
+      setConfigItem.trainingInfo = this.configInfo.trainingInfo
+      setConfigItem.searchInfo = this.configInfo.searchInfo;
+      setConfigItem.statusCorrection = this.configInfo.statusCorrection;
+      setConfigItem.typeRateList = this.configInfo.typeRateList;
+      setConfigItem.mapRateList = this.configInfo.mapRateList;
+      setConfigItem.shopInfoList = this.configInfo.shopInfoList;
+      setConfigItem.weaponsInfoList = this.configInfo.weaponsInfoList;
+      setConfigItem.weaponProgress = this.configInfo.weaponProgress;
+      setConfigItem.initMaterialSet = this.configInfo.initMaterialSet;
+      this.configInfo = setConfigItem;
     }
   },
 }
