@@ -1,64 +1,68 @@
 <template>
     <v-row>
         <v-col>
-            <v-card>
-                <v-card-title>確率強化</v-card-title>
-                <v-list>
-                    <template v-for="item in rateNames">
-                        <v-list-item :key="`first-${item}`">
-                            <v-list-item-content>
-                                <v-list-item-title>
-                                    {{item}} : {{shopRateStage[item]}}
-                                </v-list-item-title>
-                            </v-list-item-content>
-                            <v-list-item-action>
-                                <v-btn
-                                    fab
-                                    small
-                                    :disabled="isRankAble(item)"
-                                    v-on:click="updateRateRank(item)"
-                                >
-                                    <v-icon>mdi-plus</v-icon>
-                                </v-btn>
-                            </v-list-item-action>
-                        </v-list-item>
-                        <v-divider
-                            :inset="inset"
-                            :key="`second-${item}`"
-                        ></v-divider>
-                    </template>
-                </v-list>
-            </v-card>
-        </v-col>
-        <v-col>
-            <v-card>
-                <v-card-title>価格強化</v-card-title>
-                <v-list>
-                    <template v-for="item in valueNames">
-                        <v-list-item :key="`first-${item}`">
-                            <v-list-item-content>
-                                <v-list-item-title>
-                                    {{item}} : {{shopValueStage[item]}}
-                                </v-list-item-title>
-                            </v-list-item-content>
-                            <v-list-item-action>
-                                <v-btn
-                                    fab
-                                    small
-                                    :disabled="isValueAble(item)"
-                                    v-on:click="updateValueRank(item)"
-                                >
-                                    <v-icon>mdi-plus</v-icon>
-                                </v-btn>
-                            </v-list-item-action>
-                        </v-list-item>
-                        <v-divider
-                            :inset="inset"
-                            :key="`second-${item}`"
-                        ></v-divider>
-                    </template>
-                </v-list>
-            </v-card>
+            <v-row>
+                <v-col>
+                    <v-card>
+                        <v-card-title>確率強化</v-card-title>
+                        <v-list>
+                            <template v-for="item in rateNames">
+                                <v-list-item :key="`first-${item}`">
+                                    <v-list-item-content>
+                                        <v-list-item-title>
+                                            {{item}} : {{shopRateStage[item]}}
+                                        </v-list-item-title>
+                                    </v-list-item-content>
+                                    <v-list-item-action>
+                                        <v-btn
+                                            fab
+                                            small
+                                            :disabled="isRankAble(item)"
+                                            v-on:click="updateRateRank(item)"
+                                        >
+                                            <v-icon>mdi-plus</v-icon>
+                                        </v-btn>
+                                    </v-list-item-action>
+                                </v-list-item>
+                                <v-divider
+                                    :inset="inset"
+                                    :key="`second-${item}`"
+                                ></v-divider>
+                            </template>
+                        </v-list>
+                    </v-card>
+                </v-col>
+                <v-col>
+                    <v-card>
+                        <v-card-title>価格強化</v-card-title>
+                        <v-list>
+                            <template v-for="item in valueNames">
+                                <v-list-item :key="`first-${item}`">
+                                    <v-list-item-content>
+                                        <v-list-item-title>
+                                            {{item}} : {{shopValueStage[item]}}
+                                        </v-list-item-title>
+                                    </v-list-item-content>
+                                    <v-list-item-action>
+                                        <v-btn
+                                            fab
+                                            small
+                                            :disabled="isValueAble(item)"
+                                            v-on:click="updateValueRank(item)"
+                                        >
+                                            <v-icon>mdi-plus</v-icon>
+                                        </v-btn>
+                                    </v-list-item-action>
+                                </v-list-item>
+                                <v-divider
+                                    :inset="inset"
+                                    :key="`second-${item}`"
+                                ></v-divider>
+                            </template>
+                        </v-list>
+                    </v-card>
+                </v-col>
+            </v-row>
         </v-col>
         <v-col>
             <v-card>
@@ -90,6 +94,36 @@
                 </v-list>
             </v-card>
         </v-col>
+        <v-col>
+            <v-card>
+                <v-card-title>訓練施設強化</v-card-title>
+                <v-list>
+                    <template v-for="item in statusKeys">
+                        <v-list-item :key="`first-${item}`">
+                            <v-list-item-content>
+                                <v-list-item-title>
+                                    {{item}} : {{cTrainingUpdateStage[item]}}
+                                </v-list-item-title>
+                            </v-list-item-content>
+                            <v-list-item-action>
+                                <v-btn
+                                    fab
+                                    small
+                                    :disabled="isStatusStageAble(item)"
+                                    v-on:click="updateStatusRank(item)"
+                                >
+                                    <v-icon>mdi-plus</v-icon>
+                                </v-btn>
+                            </v-list-item-action>
+                        </v-list-item>
+                        <v-divider
+                            :inset="inset"
+                            :key="`second-${item}`"
+                        ></v-divider>
+                    </template>
+                </v-list>
+            </v-card>
+        </v-col>
     </v-row>
 </template>
 <script>
@@ -100,12 +134,14 @@ export default {
             rateNames: ["空調", "清掃用具"],
             valueNames: ["一品物陳列棚", "置物"],
             limitName: ["広告", "イベントスペース"],
+            statusKeys: ["STR", "DEX", "DEF", "INT", "PRE", "SPD"],
         }
     },
     props: {
         shopRateStage: Object,
         shopValueStage: Object,
         shopLimitStage: Object,
+        trainingUpdateStage: Object,
     },
     methods:{
         isRankAble: function(item){
@@ -113,6 +149,9 @@ export default {
         },
         isValueAble: function(item){
             return this.shopValueStage[item] > 3;
+        },
+        isStatusStageAble:function(item) {
+            return this.trainingUpdateStage[item] > 3;
         },
         updateRateRank: function(item){
             this.$emit("updateShopStage", {"key": item, "index": this.shopRateStage[item]});
@@ -123,7 +162,17 @@ export default {
         updateLimitRank: function(item, index){
             this.$emit("updateShopStage", {"key": item, "index": index});
         },
+        updateStatusRank: function(item) {
+            this.$emit("updateStatusStage", {"key": item, "index": this.trainingUpdateStage[item]});
+        }
 
+    },
+    computed: {
+        cTrainingUpdateStage: {
+            get(){
+                return this.trainingUpdateStage;
+            },
+        },
     }
 }
 </script>

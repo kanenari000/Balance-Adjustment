@@ -61,6 +61,7 @@
       :configInfo="configInfo"
       :battleDays="battleDays"
       @updateShop="updateShop"
+      @updateStatusStage="updateStatusStage"
       @setBattleDays="setBattleDays"
     />
     <!-- 各武器種に対応するマス目 -->
@@ -380,6 +381,13 @@ export default {
           item.index,
           !this.resultItems.shopLimitStage[item.key][item.index]
         );
+      }
+    },
+    updateStatusStage: function(item) {
+      let targetPrice = Number(this.configInfo.trainingUpdate[item.key][item.index].price);
+      if((this.myMoney - targetPrice)>=0) {
+        this.resultItems.trainingUpdateStage[item.key]++;
+        this.myMoney -= targetPrice;
       }
     },
     setBattleDays: function(item){

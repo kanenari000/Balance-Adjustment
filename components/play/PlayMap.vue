@@ -191,29 +191,32 @@ import {ResultSet} from '~/modules/play/resultSet.js'
           rndStatus = this.configItem.trainingInfo.statusCorrection[this.weaponName];
         }
         let charaCor = this.configItem.statusCorrection;
-
+        let statusUpper = this.configItem.trainingUpdate;
+        let statusStage = this.resultItems.trainingUpdateStage;
+        
         // 各種ステータスを計算
         let str = this.calcStatus(
-          status.strength, rndStatus.strength, comboValue, charaCor.strength);
+          status.strength, rndStatus.strength, comboValue, charaCor.strength, statusUpper["STR"][statusStage["STR"]]);
         let dex = this.calcStatus(
-          status.dexterity, rndStatus.dexterity, comboValue, charaCor.dexterity);
+          status.dexterity, rndStatus.dexterity, comboValue, charaCor.dexterity, statusUpper["DEX"][statusStage["DEX"]]);
         let def = this.calcStatus(
-          status.defense, rndStatus.defense, comboValue, charaCor.defense);
+          status.defense, rndStatus.defense, comboValue, charaCor.defense, statusUpper["DEF"][statusStage["DEF"]]);
         let int = this.calcStatus(
-          status.intelligence, rndStatus.intelligence, comboValue, charaCor.intelligence);
+          status.intelligence, rndStatus.intelligence, comboValue, charaCor.intelligence, statusUpper["INT"][statusStage["INT"]]);
         let pre = this.calcStatus(
-          status.preemption, rndStatus.preemption, comboValue, charaCor.preemption);
+          status.preemption, rndStatus.preemption, comboValue, charaCor.preemption, statusUpper["PRE"][statusStage["PRE"]]);
         let spd = this.calcStatus(
-          status.speed, rndStatus.speed, comboValue, charaCor.speed);
+          status.speed, rndStatus.speed, comboValue, charaCor.speed, statusUpper["SPD"][statusStage["SPD"]]);
         return new Status(str, dex, def, int, pre, spd);
       },
       // ステータスを計算して返却する（切り上げ）
-      calcStatus: function(baseNum, rndNum, combo, charaCorrection){
+      calcStatus: function(baseNum, rndNum, combo, charaCorrection, statusUpper){
         return Math.ceil(
           (baseNum + Math.floor(Math.random() * Math.floor(rndNum)))
           * combo
           * this.mapList[this.nowPoint].rate
-          * charaCorrection)
+          * charaCorrection
+          * (1 + Number(statusUpper.value)))
           * this.diceNum;
       },
       getMaterials: function(comboValue){

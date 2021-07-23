@@ -1,17 +1,19 @@
 <template>
     <v-col cols="9">
         <v-tabs
-        fixed-tabs
-        background-color="blue-grey darken-4"
-        dark
-        v-model="resultTab"
+            center-active
+            show-arrows
+            grow
+            background-color="blue-grey darken-4"
+            dark
+            v-model="resultTab"
         >
             <v-tab> キャラクターステータス </v-tab>
             <v-tab> 所持武器 </v-tab>
             <v-tab> 一品物製造状態 </v-tab>
             <v-tab> 所持素材 </v-tab>
             <v-tab> 店舗陳列 </v-tab>
-            <v-tab> 店強化 </v-tab>
+            <v-tab> 施設強化 </v-tab>
             <v-tab> 大会予約 </v-tab>
             <v-tab> マス目サマリ </v-tab>
             <v-tab> 武器レシピ </v-tab>
@@ -64,7 +66,9 @@
                     :shopRateStage="resultItems.shopRateStage" 
                     :shopValueStage="resultItems.shopValueStage"
                     :shopLimitStage="resultItems.shopLimitStage"
+                    :trainingUpdateStage="resultItems.trainingUpdateStage"
                     @updateShopStage="updateShopStage"
+                    @updateStatusStage="updateStatusStage"
                 />
             </v-tab-item>
             <v-tab-item eager>
@@ -98,6 +102,7 @@ import MapSummary from './result/MapSummary.vue';
 import WeaponProgress from './result/WeaponProgress.vue';
 import Calendars from './result/Calendars.vue';
 import ViewWeaponRecipe from './result/ViewWeaponRecipe.vue';
+import TrainingUpdate from './result/TrainingUpdate.vue';
 export default {
     components: {
         StatusResult,
@@ -108,6 +113,7 @@ export default {
         WeaponProgress,
         Calendars,
         ViewWeaponRecipe,
+        TrainingUpdate,
     },
     data(){
         return{
@@ -139,6 +145,9 @@ export default {
         },
         updateShopStage: function(item){
             this.$emit("updateShop", item);
+        },
+        updateStatusStage: function(item){
+            this.$emit("updateStatusStage", item);
         },
         setBattleDays: function(item){
             this.$emit("setBattleDays", item);
