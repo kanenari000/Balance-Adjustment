@@ -129,13 +129,16 @@ import {ResultSet} from '~/modules/play/resultSet.js'
         }
         // 武器製造
         this.makeWeapons(makeFlag);
-        // キャラクターのステータスを計算
-        let addStatus = this.manageStatus();        
+        
         // マップを移動
         this.mapList[this.nowPoint].isActive = false;
         this.nowPoint += this.diceNum;
         this.mapList[this.nowPoint].isActive = true;
         this.model = this.nowPoint;
+
+        // キャラクターのステータスを計算
+        let addStatus = this.manageStatus();
+
         // 実行結果サマリに追加
         let eventMap = {
           'blue': "青",
@@ -211,6 +214,7 @@ import {ResultSet} from '~/modules/play/resultSet.js'
       },
       // ステータスを計算して返却する（切り上げ）
       calcStatus: function(baseNum, rndNum, combo, charaCorrection, statusUpper){
+        console.log(this.mapList[this.nowPoint].rate);
         return Math.ceil(
           (baseNum + Math.floor(Math.random() * Math.floor(rndNum)))
           * combo
