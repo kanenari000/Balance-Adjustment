@@ -214,7 +214,6 @@ import {ResultSet} from '~/modules/play/resultSet.js'
       },
       // ステータスを計算して返却する（切り上げ）
       calcStatus: function(baseNum, rndNum, combo, charaCorrection, statusUpper){
-        console.log(this.mapList[this.nowPoint].rate);
         return Math.ceil(
           (baseNum + Math.floor(Math.random() * Math.floor(rndNum)))
           * combo
