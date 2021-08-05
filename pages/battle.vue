@@ -324,7 +324,7 @@ export default {
             let chDmg = 1;
             if(ch > 1) {
                 chDmg += ch;
-            }else if(Math.random() < ch){
+            }else if(Math.random() > ch){
                 chDmg = 2;
             }
             // 弾が指定されている場合情報の取得
